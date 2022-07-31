@@ -103,7 +103,6 @@ class PyChess:
         # cleanup on exit
         pygame.quit()
         pygame.mixer.quit()
-        quit()
 
 
 if __name__ == '__main__':

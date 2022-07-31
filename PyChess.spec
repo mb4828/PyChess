@@ -6,9 +6,9 @@ block_cipher = None
 
 a = Analysis(
     ['main.py'],
-    pathex=['venv/Lib/site-packages', 'game/', 'logic/'],
+    pathex=['..\\venv\\Lib\\site-packages', '..\\game\\', '..\\logic\\'],
     binaries=[],
-    datas=[('assets/images/*', 'assets/images'), ('assets/sounds/*', 'assets/sounds'), ('venv/Lib/site-packages/pygame_menu/resources/fonts/*', 'pygame_menu/resources/fonts')],
+    datas=[('assets\\images\\*', 'assets\\images'), ('assets\\sounds\\*', 'assets\\sounds'), ('venv\\Lib\\site-packages\\pygame_menu\\resources\\fonts\\*', 'pygame_menu\\resources\\fonts')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
