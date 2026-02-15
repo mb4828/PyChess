@@ -2,7 +2,7 @@
 Utility functions for move logic
 """
 
-import constants
+import pychess.constants as constants
 
 
 def get_piece_color(piece_code):

@@ -1,5 +1,5 @@
 """Tests for logic/move_executor.py"""
-from logic.move_executor import execute_move
+from pychess.engine.move_executor import execute_move
 
 
 def empty_board():

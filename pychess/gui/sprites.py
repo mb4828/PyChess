@@ -6,8 +6,8 @@ from math import floor
 
 import pygame
 
-import constants
-from game.game_utils import get_resource_path
+import pychess.constants as constants
+from .gui_utils import get_resource_path
 
 
 class Sprites:
@@ -15,18 +15,30 @@ class Sprites:
         self.game_window = game_window
 
         # load sprites
-        self.light_king = pygame.image.load(get_resource_path(constants.PATH_KL)).convert_alpha()
-        self.dark_king = pygame.image.load(get_resource_path(constants.PATH_KD)).convert_alpha()
-        self.light_queen = pygame.image.load(get_resource_path(constants.PATH_QL)).convert_alpha()
-        self.dark_queen = pygame.image.load(get_resource_path(constants.PATH_QD)).convert_alpha()
-        self.light_bishop = pygame.image.load(get_resource_path(constants.PATH_BL)).convert_alpha()
-        self.dark_bishop = pygame.image.load(get_resource_path(constants.PATH_BD)).convert_alpha()
-        self.light_knight = pygame.image.load(get_resource_path(constants.PATH_NL)).convert_alpha()
-        self.dark_knight = pygame.image.load(get_resource_path(constants.PATH_ND)).convert_alpha()
-        self.light_rook = pygame.image.load(get_resource_path(constants.PATH_RL)).convert_alpha()
-        self.dark_rook = pygame.image.load(get_resource_path(constants.PATH_RD)).convert_alpha()
-        self.light_pawn = pygame.image.load(get_resource_path(constants.PATH_PL)).convert_alpha()
-        self.dark_pawn = pygame.image.load(get_resource_path(constants.PATH_PD)).convert_alpha()
+        self.light_king = pygame.image.load(
+            get_resource_path(constants.PATH_KL)).convert_alpha()
+        self.dark_king = pygame.image.load(
+            get_resource_path(constants.PATH_KD)).convert_alpha()
+        self.light_queen = pygame.image.load(
+            get_resource_path(constants.PATH_QL)).convert_alpha()
+        self.dark_queen = pygame.image.load(
+            get_resource_path(constants.PATH_QD)).convert_alpha()
+        self.light_bishop = pygame.image.load(
+            get_resource_path(constants.PATH_BL)).convert_alpha()
+        self.dark_bishop = pygame.image.load(
+            get_resource_path(constants.PATH_BD)).convert_alpha()
+        self.light_knight = pygame.image.load(
+            get_resource_path(constants.PATH_NL)).convert_alpha()
+        self.dark_knight = pygame.image.load(
+            get_resource_path(constants.PATH_ND)).convert_alpha()
+        self.light_rook = pygame.image.load(
+            get_resource_path(constants.PATH_RL)).convert_alpha()
+        self.dark_rook = pygame.image.load(
+            get_resource_path(constants.PATH_RD)).convert_alpha()
+        self.light_pawn = pygame.image.load(
+            get_resource_path(constants.PATH_PL)).convert_alpha()
+        self.dark_pawn = pygame.image.load(
+            get_resource_path(constants.PATH_PD)).convert_alpha()
 
     def scale_sprite(self, sprite, width, height):
         """

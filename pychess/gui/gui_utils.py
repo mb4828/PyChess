@@ -3,10 +3,8 @@ Game utility functions
 """
 import os
 import sys
-
 import pygame
-
-import constants
+import pychess.constants as constants
 
 
 def get_resource_path(file_path):
@@ -29,7 +27,8 @@ def draw_board(window):
                 color = constants.SQ_LIGHT_COLOR
             else:
                 color = constants.SQ_DARK_COLOR
-            rect = (constants.SQ_HEIGHT * y, constants.SQ_HEIGHT * x, constants.SQ_HEIGHT, constants.SQ_HEIGHT)
+            rect = (constants.SQ_HEIGHT * y, constants.SQ_HEIGHT *
+                    x, constants.SQ_HEIGHT, constants.SQ_HEIGHT)
             pygame.draw.rect(window, color, rect)
 
 

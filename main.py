@@ -2,10 +2,10 @@ from enum import Enum
 
 import pygame
 
-import constants
-from game.game_utils import get_resource_path
-from game.menus import StartMenu, PauseMenu, GameOverMenu
-from game.pvp import PVPGame
+import pychess.constants as constants
+from pychess.gui.gui_utils import get_resource_path
+from pychess.gui.menus import StartMenu, PauseMenu, GameOverMenu, PromotionMenu
+from pychess.game.pvp import PVPGame
 
 
 class GameState(Enum):
@@ -13,10 +13,12 @@ class GameState(Enum):
     PAUSE = 2
     PVP = 3
     GAME_OVER = 4
+    PROMOTION = 5
 
 
 class PyChess:
-    window = pygame.display.set_mode((constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT))
+    window = pygame.display.set_mode(
+        (constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT))
     clock = pygame.time.Clock()
     game_state = GameState.START
     running = True
@@ -26,16 +28,20 @@ class PyChess:
     start_menu = None
     pause_menu = None
     game_over_menu = None
+    promotion_menu = None
 
     def __init__(self):
         pygame.init()
         pygame.mixer.init()
         pygame.display.set_caption(f'PyChess v{constants.VERSION}')
-        pygame.display.set_icon(pygame.image.load(get_resource_path(constants.PATH_KL)))
+        pygame.display.set_icon(pygame.image.load(
+            get_resource_path(constants.PATH_KL)))
         self.start_menu = StartMenu(self.start_pvp_game, self.quit_game)
         self.pause_menu = PauseMenu(lambda: self.set_game_state(GameState.PVP),
                                     lambda: self.set_game_state(GameState.START))
-        self.game_over_menu = GameOverMenu(lambda: self.set_game_state(GameState.START))
+        self.game_over_menu = GameOverMenu(
+            lambda: self.set_game_state(GameState.START))
+        self.promotion_menu = PromotionMenu(self.on_promotion_select)
         self.main()
 
     def set_game_state(self, state):
@@ -47,6 +53,11 @@ class PyChess:
 
     def quit_game(self):
         self.running = False
+
+    def on_promotion_select(self, piece_type):
+        if self.game:
+            self.game.complete_promotion(piece_type)
+            self.game_state = GameState.PVP
 
     def main(self):
         while self.running:
@@ -60,16 +71,19 @@ class PyChess:
                         self.game_state == GameState.PVP:
                     # pause the game
                     self.game_state = GameState.PAUSE
-                elif self.game and event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                elif self.game and event.type == pygame.MOUSEBUTTONDOWN and event.button == 1 \
+                        and self.game_state == GameState.PVP:
                     # start of click and drag
                     self.dragging = True
                     y, x = event.pos
                     self.game.drag_start(x, y)
-                elif self.game and event.type == pygame.MOUSEMOTION and self.dragging:
+                elif self.game and event.type == pygame.MOUSEMOTION and self.dragging \
+                        and self.game_state == GameState.PVP:
                     # mouse movement during click and drag
                     y, x = event.pos
                     self.game.drag_continue(x, y)
-                elif self.game and event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+                elif self.game and event.type == pygame.MOUSEBUTTONUP and event.button == 1 \
+                        and self.game_state == GameState.PVP:
                     # end of click and drag
                     self.dragging = False
                     self.game.drag_stop()
@@ -77,11 +91,17 @@ class PyChess:
                     # white wins the game
                     self.game_state = GameState.GAME_OVER
                     self.game_over_menu.set_winner(True)
-                    self.white_wins = True
                 elif event.type == constants.EVENT_BLACK_WINS:
                     # black wins the game
                     self.game_state = GameState.GAME_OVER
                     self.game_over_menu.set_winner(False)
+                elif event.type == constants.EVENT_DRAW:
+                    # stalemate draw
+                    self.game_state = GameState.GAME_OVER
+                    self.game_over_menu.set_draw()
+                elif event.type == constants.EVENT_PROMOTION:
+                    # pawn promotion
+                    self.game_state = GameState.PROMOTION
 
             # draw graphics
             self.window.fill(constants.WINDOW_COLOR)
@@ -97,6 +117,9 @@ class PyChess:
             if self.game_state == GameState.GAME_OVER:
                 # draw game over menu
                 self.game_over_menu.draw(self.window, events)
+            if self.game_state == GameState.PROMOTION:
+                # draw promotion menu
+                self.promotion_menu.draw(self.window, events)
             pygame.display.update()
             self.clock.tick(60)  # max 60 FPS
 

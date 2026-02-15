@@ -1,5 +1,5 @@
 """Tests for pawn edge cases and bugs"""
-from logic.move_validator import get_valid_moves
+from pychess.engine.move_validator import get_valid_moves
 
 
 def empty_board():

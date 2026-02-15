@@ -4,8 +4,8 @@ Game sounds
 
 import pygame
 
-import constants
-from game.game_utils import get_resource_path
+import pychess.constants as constants
+from .gui_utils import get_resource_path
 
 
 def play_game_start():

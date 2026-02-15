@@ -1,5 +1,5 @@
 """Tests for check and checkmate logic"""
-from logic.move_validator import is_in_check, is_in_checkmate, get_valid_moves
+from pychess.engine.move_validator import is_in_check, is_in_checkmate, get_valid_moves
 
 
 def empty_board():
