@@ -1,6 +1,8 @@
 """
 Game constants
 """
+VERSION = '2026.2.1'
+
 WINDOW_WIDTH = 600  # width of the game window
 WINDOW_HEIGHT = 600  # height of the game window
 WINDOW_COLOR = (200, 200, 200)

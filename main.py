@@ -30,7 +30,7 @@ class PyChess:
     def __init__(self):
         pygame.init()
         pygame.mixer.init()
-        pygame.display.set_caption('PyChess')
+        pygame.display.set_caption(f'PyChess v{constants.VERSION}')
         pygame.display.set_icon(pygame.image.load(get_resource_path(constants.PATH_KL)))
         self.start_menu = StartMenu(self.start_pvp_game, self.quit_game)
         self.pause_menu = PauseMenu(lambda: self.set_game_state(GameState.PVP),
