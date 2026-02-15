@@ -17,6 +17,12 @@ Python 3.11 or above
 venv/bin/python main.py
 ```
 
+### To Test
+
+```bash
+python -m pytest tests/ -v
+```
+
 ### To Build
 
 Use the build script that automatically detects your platform:

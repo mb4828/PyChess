@@ -74,8 +74,9 @@ class PVPGame:
             if self.drag_piece_cursor_sq in self.drag_piece_valid_moves:
                 # valid move - execute move
                 sqx, sqy = self.drag_piece_cursor_sq
+                start_sqx, start_sqy = self.drag_piece_start_sq
                 is_capture = move_utils.is_piece_at(self.game_state, sqx, sqy)
-                self.game_state = move_executor.execute_move(self.game_state, self.drag_piece, sqx, sqy)
+                self.game_state = move_executor.execute_move(self.game_state, self.drag_piece, start_sqx, start_sqy, sqx, sqy)
 
                 # switch turn to opposing player
                 self.is_light_turn = not self.is_light_turn

@@ -9,6 +9,8 @@ WINDOW_COLOR = (200, 200, 200)
 
 EVENT_WHITE_WINS = 0  # event triggered when white wins
 EVENT_BLACK_WINS = 1  # event triggered when black wins
+EVENT_DRAW = 2  # event triggered on stalemate
+EVENT_PROMOTION = 3  # event triggered when pawn reaches promotion rank
 
 BOARD_WIDTH = 8  # number of squares in a row
 BOARD_HEIGHT = 8  # number of squares in a column

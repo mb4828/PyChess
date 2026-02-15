@@ -66,24 +66,25 @@ def is_in_checkmate(game_state, piece_code_or_color):
     :param piece_code_or_color: A piece code or the color to validate check for (e.g 'pl' or 'l')
     :return: Boolean
     """
-    # iterate over board, collecting active color moves
-    # the king is in checkmate if there are no more valid moves
     color = get_piece_color(piece_code_or_color)
-    active_color_moves = []
+
+    # checkmate requires the king to be in check; no check = stalemate (not checkmate)
+    if not is_in_check(game_state, color):
+        return False
+
+    # iterate over board, checking if any piece has a valid move that escapes check
     for x in range(0, constants.BOARD_WIDTH):
         for y in range(0, constants.BOARD_HEIGHT):
             piece = game_state[x][y]
             if is_piece_at(game_state, x, y) and is_same_color(piece, color):
-                # active piece found - collect valid moves
-                if piece == 'kl':
-                    pass
+                # temporarily remove piece from origin (same as PVP drag_start)
+                # so that can_occupy_square's check detection works correctly
+                game_state[x][y] = ''
                 valid_moves = get_valid_moves(game_state, piece, x, y, False)
-                print(piece, valid_moves)
+                game_state[x][y] = piece  # restore piece
                 if len(valid_moves) > 0:
-                    active_color_moves += valid_moves
-    if len(active_color_moves) == 0:
-        return True
-    return False
+                    return False
+    return True
 
 
 def can_occupy_square(game_state, piece_code, sqx, sqy, ignore_check):
@@ -97,16 +98,13 @@ def can_occupy_square(game_state, piece_code, sqx, sqy, ignore_check):
     :param ignore_check:
     :return: Boolean
     """
-    temp_game_state = deepcopy(game_state)
-    temp_game_state[sqx][sqy] = piece_code
     if is_piece_at(game_state, sqx, sqy) and is_same_color(piece_code, game_state[sqx][sqy]):
-        if piece_code == 'kl' and not ignore_check:
-            print('OOPS 1', sqx, sqy)
         return False  # there's a piece on this square but we can't capture it
-    if not ignore_check and is_in_check(temp_game_state, piece_code):
-        if piece_code == 'kl' and not ignore_check:
-            print('OOPS 2', sqx, sqy)
-        return False  # this move would put us into check
+    if not ignore_check:
+        temp_game_state = deepcopy(game_state)
+        temp_game_state[sqx][sqy] = piece_code
+        if is_in_check(temp_game_state, piece_code):
+            return False  # this move would put us into check
     return True
 
 
@@ -223,7 +221,8 @@ def get_valid_pawn_moves(game_state, piece_code, start_x, start_y, ignore_check)
     if get_piece_color(piece_code) == 'l':
         if not is_piece_at(game_state, start_x - 1, start_y):
             moves.append((start_x - 1, start_y))  # 1 forward for light
-        if start_x == constants.BOARD_HEIGHT - 2 and not is_piece_at(game_state, start_x - 2, start_y):
+        if start_x == constants.BOARD_HEIGHT - 2 and not is_piece_at(game_state, start_x - 1, start_y) \
+                and not is_piece_at(game_state, start_x - 2, start_y):
             moves.append((start_x - 2, start_y))  # 2 forward for light
         if in_bounds_y(start_y - 1) and is_piece_at(game_state, start_x - 1, start_y - 1):
             moves.append((start_x - 1, start_y - 1))  # diagonal left light
@@ -232,7 +231,8 @@ def get_valid_pawn_moves(game_state, piece_code, start_x, start_y, ignore_check)
     else:
         if not is_piece_at(game_state, start_x + 1, start_y):
             moves.append((start_x + 1, start_y))  # 1 forward for dark
-        if start_x == 1 and not is_piece_at(game_state, start_x + 2, start_y):
+        if start_x == 1 and not is_piece_at(game_state, start_x + 1, start_y) \
+                and not is_piece_at(game_state, start_x + 2, start_y):
             moves.append((start_x + 2, start_y))  # 2 forward for dark
         if in_bounds_y(start_y - 1) and is_piece_at(game_state, start_x + 1, start_y - 1):
             moves.append((start_x + 1, start_y - 1))  # diagonal left dark
