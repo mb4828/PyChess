@@ -1,101 +1,100 @@
-"""
-Base Game class containing shared game logic for all game modes.
-"""
-
+"""Base Game class containing shared game logic for all game modes."""
 from math import floor
+from typing import List, Optional, Tuple
 
 import pygame
 from pygame.event import Event
 
-import pychess.constants as constants
+from pychess import constants
 from pychess.gui.gui import GUI
 from pychess.engine.engine import GameEngine
 
 
 class Game:
-    drag_piece = ''
-    drag_piece_start_sq = (0, 0)
-    drag_piece_cursor_sq = (0, 0)
-    drag_piece_cursor_pos = (0, 0)
-    drag_piece_valid_moves = []
-    pending_promotion = None
+    """Base class for all game modes. Handles drag-and-drop piece movement, promotion, and post-move checks."""
 
-    def __init__(self, window):
-        self.gui = GUI(window)
-        self.engine = GameEngine()
+    def __init__(self, window: pygame.Surface) -> None:
+        self.gui: GUI = GUI(window)
+        self.engine: GameEngine = GameEngine()
+
+        self.drag_piece: str = ''
+        self.drag_piece_start_sq: Tuple[int, int] = (0, 0)
+        self.drag_piece_cursor_sq: Tuple[int, int] = (0, 0)
+        self.drag_piece_cursor_pos: Tuple[int, int] = (0, 0)
+        self.drag_piece_valid_moves: List[Tuple[int, int]] = []
+        self.pending_promotion: Optional[Tuple[int, int]] = None
+
         self.gui.play_game_start()
 
-    def drag_start(self, x, y):
-        """
-        Triggered when user picks up a piece to make a move
-        :param x: Mouse x coordinate
-        :param y: Mouse y coordinate
+    def drag_start(self, x: int, y: int) -> None:
+        """Begin dragging a piece from the square under the cursor.
+
+        :param x: Mouse x coordinate (pixels)
+        :param y: Mouse y coordinate (pixels)
         """
         self.drag_piece = ''
-        sqx, sqy = floor(x / constants.SQ_HEIGHT), floor(y /
-                                                         constants.SQ_HEIGHT)
+        sqx, sqy = floor(x / constants.SQ_HEIGHT), floor(y / constants.SQ_HEIGHT)
         piece = self.engine.get_piece(sqx, sqy)
         if piece and self.engine.is_turn(piece):
             self.engine.state.clear_square(sqx, sqy)
             self.drag_piece = piece
             self.drag_piece_start_sq = (sqx, sqy)
             self.drag_piece_cursor_sq = (sqx, sqy)
-            self.drag_piece_valid_moves = self.engine.get_valid_moves(
-                self.drag_piece, sqx, sqy)
+            self.drag_piece_valid_moves = self.engine.get_valid_moves(self.drag_piece, sqx, sqy)
 
-    def drag_continue(self, x, y):
-        """
-        Triggered when user continues dragging piece
-        :param x: Mouse x coordinate
-        :param y: Mouse y coordinate
+    def drag_continue(self, x: int, y: int) -> None:
+        """Update the drag position as the cursor moves.
+
+        :param x: Mouse x coordinate (pixels)
+        :param y: Mouse y coordinate (pixels)
         """
         if self.drag_piece:
-            sqx, sqy = floor(
-                x / constants.SQ_HEIGHT), floor(y / constants.SQ_HEIGHT)
+            sqx, sqy = floor(x / constants.SQ_HEIGHT), floor(y / constants.SQ_HEIGHT)
             self.drag_piece_cursor_sq = (sqx, sqy)
             self.drag_piece_cursor_pos = (x, y)
 
-    def drag_stop(self):
-        """
-        Triggers when user drops a piece (or nothing if a piece was not held). Executes the move if valid
-        """
-        if self.drag_piece:
-            if self.drag_piece_cursor_sq in self.drag_piece_valid_moves:
-                # valid move - execute move via engine
-                sqx, sqy = self.drag_piece_cursor_sq
-                start_sqx, start_sqy = self.drag_piece_start_sq
+    def drag_stop(self) -> None:
+        """Drop the held piece. Execute the move if valid, otherwise return it."""
+        if not self.drag_piece:
+            return
 
-                result = self.engine.execute_move(
-                    self.drag_piece, start_sqx, start_sqy, sqx, sqy)
-
-                # check for pawn promotion
-                if result['is_promotion']:
-                    self.pending_promotion = result['promotion_square']
-                    self.drag_piece = ''
-                    pygame.event.post(Event(constants.EVENT_PROMOTION))
-                    return
-
-                # move complete
-                self._on_move_complete(result['is_capture'])
-
-            elif self.drag_piece_cursor_sq != self.drag_piece_start_sq:
-                # invalid move - return piece to previous position
-                sqx, sqy = self.drag_piece_start_sq
-                self.engine.state.set_piece(sqx, sqy, self.drag_piece)
-                self.gui.play_error()
-                self.drag_piece = ''
-
-            else:
-                # piece hasn't moved - return piece to previous position but don't clear drag_piece to keep highlights
-                sqx, sqy = self.drag_piece_start_sq
-                self.engine.state.set_piece(sqx, sqy, self.drag_piece)
-                return
+        if self.drag_piece_cursor_sq in self.drag_piece_valid_moves:
+            self._execute_drag_move()
+        elif self.drag_piece_cursor_sq != self.drag_piece_start_sq:
+            self._return_piece_to_start()
+            self.gui.play_error()
             self.drag_piece = ''
+        else:
+            # Piece dropped on starting square — keep highlights visible
+            self._return_piece_to_start()
+            return
 
-    def complete_promotion(self, piece_type):
-        """
-        Called when player selects a piece for pawn promotion.
-        :param piece_type: The piece type character (e.g. 'q', 'r', 'b', 'n')
+        self.drag_piece = ''
+
+    def _execute_drag_move(self) -> None:
+        """Execute the dragged piece's move via the engine."""
+        sqx, sqy = self.drag_piece_cursor_sq
+        start_sqx, start_sqy = self.drag_piece_start_sq
+
+        result = self.engine.execute_move(self.drag_piece, start_sqx, start_sqy, sqx, sqy)
+
+        if result['is_promotion']:
+            self.pending_promotion = result['promotion_square']
+            self.drag_piece = ''
+            pygame.event.post(Event(constants.EVENT_PROMOTION))
+            return
+
+        self._on_move_complete(result['is_capture'])
+
+    def _return_piece_to_start(self) -> None:
+        """Place the dragged piece back on its starting square."""
+        sqx, sqy = self.drag_piece_start_sq
+        self.engine.state.set_piece(sqx, sqy, self.drag_piece)
+
+    def complete_promotion(self, piece_type: str) -> None:
+        """Handle pawn promotion after the player selects a piece type.
+
+        :param piece_type: The piece type character ('q', 'r', 'b', or 'n')
         """
         if self.pending_promotion:
             px, py = self.pending_promotion
@@ -103,18 +102,20 @@ class Game:
             self.pending_promotion = None
             self._on_move_complete(False)
 
-    def _on_move_complete(self, is_capture):
-        """
-        Hook called after a valid move is executed. Subclasses can override
-        to add mode-specific behavior (e.g. trigger AI move).
-        Default: switch turn and run post-move checks.
+    def _on_move_complete(self, is_capture: bool) -> None:
+        """Hook called after a valid move is executed.
+
+        Subclasses can override to add mode-specific behavior (e.g. trigger AI move).
+
+        :param is_capture: Whether the move captured an opponent's piece
         """
         self.engine.switch_turn()
         self._post_move_checks(is_capture)
 
-    def _post_move_checks(self, is_capture):
-        """
-        Runs check/checkmate/stalemate detection and plays sounds after a move.
+    def _post_move_checks(self, is_capture: bool) -> None:
+        """Run check/checkmate/stalemate detection and play the appropriate sound.
+
+        :param is_capture: Whether the move captured an opponent's piece
         """
         color = self.engine.current_color()
         if self.engine.is_in_checkmate(color):
@@ -129,14 +130,12 @@ class Game:
         else:
             self.gui.play_move(is_capture, 'd' in self.drag_piece)
 
-    def draw(self):
-        """
-        Draws the current state of the game
-        """
+    def draw(self) -> None:
+        """Render the board, pieces, and overlays for the current frame."""
         self.gui.draw_board()
-        self.gui.draw_pieces(self.engine.state.board,
-                             constants.BOARD_WIDTH, constants.BOARD_HEIGHT)
-        self.gui.draw_overlays(self.drag_piece, self.drag_piece_start_sq,
-                               self.drag_piece_cursor_sq,
-                               self.drag_piece_cursor_pos,
-                               self.drag_piece_valid_moves)
+        self.gui.draw_pieces(self.engine.state.board, constants.BOARD_WIDTH, constants.BOARD_HEIGHT)
+        self.gui.draw_overlays(
+            self.drag_piece, self.drag_piece_start_sq,
+            self.drag_piece_cursor_sq, self.drag_piece_cursor_pos,
+            self.drag_piece_valid_moves,
+        )

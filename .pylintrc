@@ -1,0 +1,24 @@
+[MAIN]
+# Use multiple processes to speed up pylint
+jobs = 1
+
+[FORMAT]
+max-line-length = 120
+
+[MESSAGES CONTROL]
+# E1101: pygame uses C extensions that pylint cannot introspect
+# R0903: Menu classes intentionally have few public methods
+# R0902: Game classes naturally have many instance attributes
+# R0913/R0917: Chess functions require many positional args (board, piece, x, y, etc.)
+# R0916: Castling validation requires many boolean conditions
+disable =
+    no-member,
+    too-few-public-methods,
+    too-many-instance-attributes,
+    too-many-arguments,
+    too-many-positional-arguments,
+    too-many-boolean-expressions
+
+[TYPECHECK]
+# pygame members are dynamically generated from C extensions
+generated-members = pygame.*

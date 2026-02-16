@@ -1,34 +1,34 @@
 #!/usr/bin/env python3
-"""
-Build script for PyChess
-Creates single-file executables for Windows and macOS
-"""
+"""Build script for PyChess. Creates single-file executables for Windows and macOS."""
+import logging
 import os
-import sys
+import platform
 import shutil
 import subprocess
-import platform
+import sys
+
+logger = logging.getLogger(__name__)
 
 
-def clean_build():
-    """Remove old build artifacts"""
+def clean_build() -> None:
+    """Remove old build artifacts from previous PyInstaller runs."""
     dirs_to_remove = ['build', 'dist', '__pycache__']
     files_to_remove = ['PyChess.spec']
 
     for dir_name in dirs_to_remove:
         if os.path.exists(dir_name):
-            print(f"Removing {dir_name}/")
+            logger.info("Removing %s/", dir_name)
             shutil.rmtree(dir_name)
 
     for file_name in files_to_remove:
         if os.path.exists(file_name):
-            print(f"Removing {file_name}")
+            logger.info("Removing %s", file_name)
             os.remove(file_name)
 
 
-def build_windows():
-    """Build for Windows"""
-    print("Building for Windows...")
+def build_windows() -> None:
+    """Build a single-file Windows executable using PyInstaller."""
+    logger.info("Building for Windows...")
     cmd = [
         'pyinstaller',
         '--onefile',
@@ -41,15 +41,15 @@ def build_windows():
         '--add-data', 'venv/Lib/site-packages/pygame_menu/resources/fonts/*;pygame_menu/resources/fonts',
         '--name', 'PyChess',
         '--icon', 'assets/images/pychess.ico',
-        '--noconsole'
+        '--noconsole',
     ]
     subprocess.run(cmd, check=True)
-    print("\nBuild complete! Executable is in dist/PyChess.exe")
+    logger.info("Build complete! Executable is in dist/PyChess.exe")
 
 
-def build_macos():
-    """Build for macOS"""
-    print("Building for macOS...")
+def build_macos() -> None:
+    """Build a macOS .app bundle using PyInstaller."""
+    logger.info("Building for macOS...")
     cmd = [
         'pyinstaller',
         '--windowed',
@@ -61,39 +61,37 @@ def build_macos():
         '--add-data', 'assets/sounds/*:assets/sounds',
         '--add-data', 'venv/lib/python3.11/site-packages/pygame_menu/resources/fonts/*:pygame_menu/resources/fonts',
         '--name', 'PyChess',
-        '--icon', 'assets/images/pychess.ico'
+        '--icon', 'assets/images/pychess.ico',
     ]
     subprocess.run(cmd, check=True)
 
-    # Remove the standalone folder (we only want the .app bundle)
+    # PyInstaller creates both a folder and .app bundle; only the .app is needed
     standalone_folder = 'dist/PyChess'
     if os.path.exists(standalone_folder) and os.path.isdir(standalone_folder):
         shutil.rmtree(standalone_folder)
-        print(f"Cleaned up {standalone_folder}/ folder")
+        logger.info("Cleaned up %s/ folder", standalone_folder)
 
-    print("\nBuild complete! App bundle is in dist/PyChess.app")
-    print("You can drag PyChess.app to your Applications folder or double-click to run.")
+    logger.info("Build complete! App bundle is in dist/PyChess.app")
 
 
-def main():
-    """Main build function"""
+def main() -> None:
+    """Detect the current platform and run the appropriate build."""
+    logging.basicConfig(level=logging.INFO, format='%(message)s')
+
     system = platform.system()
+    logger.info("PyChess Build Script")
+    logger.info("Platform: %s", system)
+    logger.info("-" * 50)
 
-    print(f"PyChess Build Script")
-    print(f"Platform: {system}")
-    print("-" * 50)
-
-    # Clean previous builds
     clean_build()
 
-    # Build for the current platform
     if system == 'Windows':
         build_windows()
-    elif system == 'Darwin':  # macOS
+    elif system == 'Darwin':
         build_macos()
     else:
-        print(f"Error: Unsupported platform '{system}'")
-        print("This script supports Windows and macOS only.")
+        logger.error(
+            "Unsupported platform '%s'. This script supports Windows and macOS only.", system)
         sys.exit(1)
 
 

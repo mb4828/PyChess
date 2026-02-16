@@ -1,10 +1,6 @@
-"""
-Player vs. player (PVP) game
-"""
-
+"""Player vs. player (PVP) game mode."""
 from pychess.game.game import Game
 
 
 class PVPGame(Game):
-    def __init__(self, window):
-        super().__init__(window)
+    """Two-player local game using the base Game drag-and-drop logic with no modifications."""

@@ -1,67 +1,65 @@
-"""
-Utility functions for move logic
-"""
+"""Utility functions for move logic."""
+from typing import List
 
-import pychess.constants as constants
+from pychess import constants
 
 
-def get_piece_color(piece_code):
-    """
-    Takes a piece code and returns its color
-    :param piece_code: Piece code (e.g. 'pl')
-    :return: Color ('l' or 'd')
+def get_piece_color(piece_code: str) -> str:
+    """Extract the color character from a piece code.
+
+    :param piece_code: Piece code (e.g. 'pl') or bare color ('l' or 'd')
+    :return: 'l' for light or 'd' for dark
     """
     if 'l' in piece_code:
         return 'l'
     return 'd'
 
 
-def is_same_color(piece_code_a, piece_code_b):
-    """
-    Takes a piece code and returns a boolean indicating whether or not it's light
-    :param piece_code_a: Piece code (e.g. 'pl')
-    :param piece_code_b: Piece code (e.g. 'pd')
-    :return: Boolean
+def is_same_color(piece_code_a: str, piece_code_b: str) -> bool:
+    """Check whether two pieces belong to the same player.
+
+    :param piece_code_a: First piece code (e.g. 'pl')
+    :param piece_code_b: Second piece code (e.g. 'pd')
+    :return: True if both pieces share the same color
     """
     return get_piece_color(piece_code_a) == get_piece_color(piece_code_b)
 
 
-def is_piece_at(game_state, x, y):
+def is_piece_at(game_state: List[List[str]], x: int, y: int) -> bool:
+    """Check if a piece exists at position (x, y) on the board.
+
+    :param game_state: 2-dimensional list representing the board
+    :param x: Row index
+    :param y: Column index
+    :return: True if a piece occupies the square
     """
-    Takes a game state, x, and y and indicates if there is a piece at that position
-    :param game_state: 2 dimensional list representing game state
-    :param x: x position of square to check
-    :param y: y position of square to check
-    :return: Boolean
-    """
-    # + is used for non-piece states like en passant opportunities so must be excluded
-    # all other strings represent a piece
-    return game_state[x][y] and not game_state[x][y].startswith('+')
+    # '+' prefix is reserved for non-piece markers (e.g. en passant targets)
+    return bool(game_state[x][y]) and not game_state[x][y].startswith('+')
 
 
-def in_bounds_x(x):
-    """
-    Utility to determine if an x square position is within the board
-    :param x: x square
-    :return: Boolean
+def in_bounds_x(x: int) -> bool:
+    """Check if a row index is within the board.
+
+    :param x: Row index
+    :return: True if within bounds
     """
     return 0 <= x < constants.BOARD_WIDTH
 
 
-def in_bounds_y(y):
-    """
-    Utility to determine if a y square position is within the board
-    :param y: y square
-    :return: Boolean
+def in_bounds_y(y: int) -> bool:
+    """Check if a column index is within the board.
+
+    :param y: Column index
+    :return: True if within bounds
     """
     return 0 <= y < constants.BOARD_HEIGHT
 
 
-def in_bounds(x, y):
-    """
-    Utility to determine if an x, y square position is within the board
-    :param x: x square
-    :param y: y square
-    :return: Boolean
+def in_bounds(x: int, y: int) -> bool:
+    """Check if a (row, col) position is within the board.
+
+    :param x: Row index
+    :param y: Column index
+    :return: True if both coordinates are within bounds
     """
     return in_bounds_x(x) and in_bounds_y(y)

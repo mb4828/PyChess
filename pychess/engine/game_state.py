@@ -1,7 +1,6 @@
-"""
-Encapsulates the chess board state (8x8 grid of pieces).
-"""
+"""Encapsulates the chess board state (8x8 grid of pieces)."""
 from copy import deepcopy
+from typing import List, Optional
 
 from .move_utils import is_piece_at as _is_piece_at
 
@@ -9,37 +8,65 @@ from .move_utils import is_piece_at as _is_piece_at
 class GameState:
     """Represents the 8x8 chess board."""
 
-    def __init__(self, board=None):
-        self.board = board if board is not None else self._starting_board()
+    def __init__(self, board: Optional[List[List[str]]] = None) -> None:
+        self.board: List[List[str]] = board if board is not None else self._starting_board()
 
-    def get_piece(self, x, y):
-        """Get the piece code at position (x, y). Returns '' if empty."""
+    def get_piece(self, x: int, y: int) -> str:
+        """Get the piece code at position (x, y).
+
+        :param x: Row index
+        :param y: Column index
+        :return: Piece code string, or '' if empty
+        """
         return self.board[x][y]
 
-    def set_piece(self, x, y, piece_code):
-        """Place a piece at position (x, y)."""
+    def set_piece(self, x: int, y: int, piece_code: str) -> None:
+        """Place a piece at position (x, y).
+
+        :param x: Row index
+        :param y: Column index
+        :param piece_code: Piece code to place (e.g. 'pl')
+        """
         self.board[x][y] = piece_code
 
-    def clear_square(self, x, y):
-        """Clear the square at position (x, y)."""
+    def clear_square(self, x: int, y: int) -> None:
+        """Clear the square at position (x, y).
+
+        :param x: Row index
+        :param y: Column index
+        """
         self.board[x][y] = ''
 
-    def is_piece_at(self, x, y):
-        """Check if a piece exists at position (x, y)."""
+    def is_piece_at(self, x: int, y: int) -> bool:
+        """Check if a piece exists at position (x, y).
+
+        :param x: Row index
+        :param y: Column index
+        :return: True if a piece occupies the square
+        """
         return _is_piece_at(self.board, x, y)
 
-    def copy(self):
-        """Create a deep copy of this game state."""
+    def copy(self) -> 'GameState':
+        """Create a deep copy of this game state.
+
+        :return: New GameState with an independent copy of the board
+        """
         return GameState(board=deepcopy(self.board))
 
     @staticmethod
-    def empty():
-        """Factory method to create an empty board."""
+    def empty() -> 'GameState':
+        """Create a GameState with an empty board.
+
+        :return: GameState with all squares empty
+        """
         return GameState(board=[['' for _ in range(8)] for _ in range(8)])
 
     @staticmethod
-    def _starting_board():
-        """Create the standard chess starting position."""
+    def _starting_board() -> List[List[str]]:
+        """Create the standard chess starting position.
+
+        :return: 8x8 list of piece code strings
+        """
         return [
             ['rd', 'nd', 'bd', 'qd', 'kd', 'bd', 'nd', 'rd'],
             ['pd', 'pd', 'pd', 'pd', 'pd', 'pd', 'pd', 'pd'],
@@ -48,5 +75,5 @@ class GameState:
             ['', '', '', '', '', '', '', ''],
             ['', '', '', '', '', '', '', ''],
             ['pl', 'pl', 'pl', 'pl', 'pl', 'pl', 'pl', 'pl'],
-            ['rl', 'nl', 'bl', 'ql', 'kl', 'bl', 'nl', 'rl']
+            ['rl', 'nl', 'bl', 'ql', 'kl', 'bl', 'nl', 'rl'],
         ]

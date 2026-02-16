@@ -1,75 +1,119 @@
-"""
-GUI abstraction that wraps all rendering and sound into a single API.
-"""
-
+"""GUI abstraction that wraps all rendering and sound into a single API."""
 from math import floor
+from typing import List, Tuple
 
-import pychess.constants as constants
+import pygame
+
+from pychess import constants
 from .gui_utils import draw_board as _draw_board, draw_solid_rect, draw_solid_circle
 from .sprites import Sprites
 from . import sounds
 
 
 class GUI:
-    def __init__(self, window):
-        self.window = window
-        self.sprites = Sprites(window)
+    """Facade for all rendering and audio operations."""
 
-    # Board rendering
+    def __init__(self, window: pygame.Surface) -> None:
+        self.window: pygame.Surface = window
+        self.sprites: Sprites = Sprites(window)
 
-    def draw_board(self):
+    # ==== Board Rendering ==== #
+
+    def draw_board(self) -> None:
+        """Draw the chess board background (alternating light/dark squares)."""
         _draw_board(self.window)
 
-    def draw_piece(self, piece_code, x, y):
-        """Draws a piece at board square (x, y)."""
-        source = self.sprites.get_sprite_from_code(
-            piece_code, constants.SQ_HEIGHT, constants.SQ_HEIGHT)
+    def draw_piece(self, piece_code: str, x: int, y: int) -> None:
+        """Draw a piece at board square (x, y).
+
+        :param piece_code: The piece code (e.g. 'pl')
+        :param x: Row index
+        :param y: Column index
+        """
+        source = self.sprites.get_sprite_from_code(piece_code, constants.SQ_HEIGHT, constants.SQ_HEIGHT)
         dest = (constants.SQ_HEIGHT * y, constants.SQ_HEIGHT * x)
         if source and dest:
             self.window.blit(source, dest)
 
-    def draw_dragged_piece(self, piece_code, cursor_pos, start_sq, cursor_sq):
-        """Draws the piece being dragged, scaled up if moved from start square."""
+    def draw_dragged_piece(
+        self, piece_code: str, cursor_pos: Tuple[int, int], start_sq: Tuple[int, int], cursor_sq: Tuple[int, int],
+    ) -> None:
+        """Draw the piece being dragged, scaled up if moved away from its start square.
+
+        :param piece_code: The piece code being dragged
+        :param cursor_pos: Current (x, y) pixel position of the cursor
+        :param start_sq: The (row, col) square the piece was picked up from
+        :param cursor_sq: The (row, col) square the cursor is currently over
+        """
         if start_sq != cursor_sq:
             scale = floor(constants.SQ_HEIGHT * 1.1)
             x, y = cursor_pos
-            surface = self.sprites.get_sprite_from_code(
-                piece_code, scale, scale)
+            surface = self.sprites.get_sprite_from_code(piece_code, scale, scale)
             self.window.blit(surface, (y - scale / 2, x - scale / 2))
         else:
             scale = constants.SQ_HEIGHT
             x, y = start_sq[0] * scale, start_sq[1] * scale
-            surface = self.sprites.get_sprite_from_code(
-                piece_code, scale, scale)
+            surface = self.sprites.get_sprite_from_code(piece_code, scale, scale)
             self.window.blit(surface, (y, x))
 
-    # Overlays
+    # ==== Overlays ==== #
 
-    def draw_square_highlight(self, x, y):
-        """Highlights a square on the board."""
-        draw_solid_rect(self.window, constants.SQ_HEIGHT, constants.SQ_HEIGHT,
-                        constants.SQ_HEIGHT * x, constants.SQ_HEIGHT * y,
-                        constants.SQ_HIGHLIGHT_COLOR, constants.SQ_HIGHLIGHT_ALPHA)
+    def draw_square_highlight(self, x: int, y: int) -> None:
+        """Draw a highlight overlay on a board square.
 
-    def draw_move_hint(self, x, y):
-        """Draws a valid move hint dot on a square."""
-        draw_solid_circle(self.window, constants.SQ_HEIGHT, constants.SQ_HEIGHT,
-                          constants.SQ_HEIGHT / 7,
-                          constants.SQ_HEIGHT * x, constants.SQ_HEIGHT * y,
-                          constants.SQ_HINT_COLOR, constants.SQ_HINT_ALPHA)
+        :param x: Row index
+        :param y: Column index
+        """
+        draw_solid_rect(
+            self.window, constants.SQ_HEIGHT, constants.SQ_HEIGHT,
+            constants.SQ_HEIGHT * x, constants.SQ_HEIGHT * y,
+            constants.SQ_HIGHLIGHT_COLOR, constants.SQ_HIGHLIGHT_ALPHA,
+        )
 
-    # Composite drawing
+    def draw_move_hint(self, x: int, y: int) -> None:
+        """Draw a valid-move hint dot on a board square.
 
-    def draw_pieces(self, board, board_width, board_height):
-        """Draws all pieces on the board."""
-        for x in range(0, board_width):
-            for y in range(0, board_height):
+        :param x: Row index
+        :param y: Column index
+        """
+        draw_solid_circle(
+            self.window, constants.SQ_HEIGHT, constants.SQ_HEIGHT,
+            constants.SQ_HEIGHT / 7,
+            constants.SQ_HEIGHT * x, constants.SQ_HEIGHT * y,
+            constants.SQ_HINT_COLOR, constants.SQ_HINT_ALPHA,
+        )
+
+    # ==== Composite Drawing ==== #
+
+    def draw_pieces(self, board: List[List[str]], board_width: int, board_height: int) -> None:
+        """Draw all pieces currently on the board.
+
+        :param board: 2-dimensional list representing the board
+        :param board_width: Number of columns
+        :param board_height: Number of rows
+        """
+        for x in range(board_width):
+            for y in range(board_height):
                 code = board[x][y]
                 if code:
                     self.draw_piece(code, x, y)
 
-    def draw_overlays(self, drag_piece, start_sq, cursor_sq, cursor_pos, valid_moves):
-        """Draws overlays such as highlighted tiles, possible moves, and dragged piece."""
+    def draw_overlays(
+        self,
+        drag_piece: str,
+        start_sq: Tuple[int, int],
+        cursor_sq: Tuple[int, int],
+        cursor_pos: Tuple[int, int],
+        valid_moves: List[Tuple[int, int]],
+    ) -> None:
+        """Draw selection highlights, move hints, and the dragged piece sprite.
+
+        :param drag_piece: The piece code being dragged, or '' if none
+        :param start_sq: The (row, col) the piece was picked up from
+        :param cursor_sq: The (row, col) the cursor is currently over
+        :param cursor_pos: Current (x, y) pixel position of the cursor
+        :param valid_moves: List of (row, col) tuples the piece can move to
+        """
         if drag_piece:
             self.draw_square_highlight(*start_sq)
             self.draw_square_highlight(*cursor_sq)
@@ -79,22 +123,31 @@ class GUI:
 
             self.draw_dragged_piece(drag_piece, cursor_pos, start_sq, cursor_sq)
 
-    # Sounds
+    # ==== Sounds ==== #
 
-    def play_game_start(self):
+    def play_game_start(self) -> None:
+        """Play the game-start sound effect."""
         sounds.play_game_start()
 
-    def play_game_over(self):
+    def play_game_over(self) -> None:
+        """Play the game-over sound effect."""
         sounds.play_game_over()
 
-    def play_error(self):
+    def play_error(self) -> None:
+        """Play the invalid-move error sound effect."""
         sounds.play_error()
 
-    def play_move(self, is_capture, is_dark=False):
+    def play_move(self, is_capture: bool, is_dark: bool = False) -> None:
+        """Play the appropriate move sound effect.
+
+        :param is_capture: Whether the move was a capture
+        :param is_dark: Whether the dark player made the move (uses alternate sound)
+        """
         if is_capture:
             sounds.play_piece_capture()
         else:
             sounds.play_piece_move(is_dark)
 
-    def play_check(self):
+    def play_check(self) -> None:
+        """Play the check sound effect."""
         sounds.play_piece_check()
