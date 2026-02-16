@@ -7,7 +7,7 @@ import pygame
 from pychess import constants
 from .gui_utils import draw_board as _draw_board, draw_solid_rect, draw_solid_circle
 from .sprites import Sprites
-from . import sounds
+from .sounds import Sounds
 
 
 class GUI:
@@ -16,6 +16,7 @@ class GUI:
     def __init__(self, window: pygame.Surface) -> None:
         self.window: pygame.Surface = window
         self.sprites: Sprites = Sprites(window)
+        self.sounds: Sounds = Sounds()
 
     # ==== Board Rendering ==== #
 
@@ -30,7 +31,8 @@ class GUI:
         :param x: Row index
         :param y: Column index
         """
-        source = self.sprites.get_sprite_from_code(piece_code, constants.SQ_HEIGHT, constants.SQ_HEIGHT)
+        source = self.sprites.get_sprite_from_code(
+            piece_code, constants.SQ_HEIGHT, constants.SQ_HEIGHT)
         dest = (constants.SQ_HEIGHT * y, constants.SQ_HEIGHT * x)
         if source and dest:
             self.window.blit(source, dest)
@@ -48,12 +50,14 @@ class GUI:
         if start_sq != cursor_sq:
             scale = floor(constants.SQ_HEIGHT * 1.1)
             x, y = cursor_pos
-            surface = self.sprites.get_sprite_from_code(piece_code, scale, scale)
+            surface = self.sprites.get_sprite_from_code(
+                piece_code, scale, scale)
             self.window.blit(surface, (y - scale / 2, x - scale / 2))
         else:
             scale = constants.SQ_HEIGHT
             x, y = start_sq[0] * scale, start_sq[1] * scale
-            surface = self.sprites.get_sprite_from_code(piece_code, scale, scale)
+            surface = self.sprites.get_sprite_from_code(
+                piece_code, scale, scale)
             self.window.blit(surface, (y, x))
 
     # ==== Overlays ==== #
@@ -121,33 +125,5 @@ class GUI:
             for sqx, sqy in valid_moves:
                 self.draw_move_hint(sqx, sqy)
 
-            self.draw_dragged_piece(drag_piece, cursor_pos, start_sq, cursor_sq)
-
-    # ==== Sounds ==== #
-
-    def play_game_start(self) -> None:
-        """Play the game-start sound effect."""
-        sounds.play_game_start()
-
-    def play_game_over(self) -> None:
-        """Play the game-over sound effect."""
-        sounds.play_game_over()
-
-    def play_error(self) -> None:
-        """Play the invalid-move error sound effect."""
-        sounds.play_error()
-
-    def play_move(self, is_capture: bool, is_dark: bool = False) -> None:
-        """Play the appropriate move sound effect.
-
-        :param is_capture: Whether the move was a capture
-        :param is_dark: Whether the dark player made the move (uses alternate sound)
-        """
-        if is_capture:
-            sounds.play_piece_capture()
-        else:
-            sounds.play_piece_move(is_dark)
-
-    def play_check(self) -> None:
-        """Play the check sound effect."""
-        sounds.play_piece_check()
+            self.draw_dragged_piece(
+                drag_piece, cursor_pos, start_sq, cursor_sq)

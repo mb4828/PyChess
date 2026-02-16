@@ -5,43 +5,44 @@ from pychess import constants
 from .gui_utils import get_resource_path
 
 
-def _play(path: str) -> None:
-    """Load and play a sound asset.
+class Sounds:
+    """Class for managing sound effects."""
 
-    :param path: Relative path to the sound file
-    """
-    pygame.mixer.Sound(get_resource_path(path)).play()
+    def _play(self, path: str) -> None:
+        """Load and play a sound asset.
 
+        :param path: Relative path to the sound file
+        """
+        pygame.mixer.Sound(get_resource_path(path)).play()
 
-def play_game_start() -> None:
-    """Play the game-start sound."""
-    _play(constants.PATH_GAME_START)
+    def play_game_start(self) -> None:
+        """Play the game-start sound."""
+        self._play(constants.PATH_GAME_START)
 
+    def play_game_over(self) -> None:
+        """Play the game-over sound."""
+        self._play(constants.PATH_GAME_OVER)
 
-def play_game_over() -> None:
-    """Play the game-over sound."""
-    _play(constants.PATH_GAME_OVER)
+    def play_error(self) -> None:
+        """Play the invalid-move error sound."""
+        self._play(constants.PATH_ERROR)
 
+    def play_piece_capture(self) -> None:
+        """Play the piece-capture sound."""
+        self._play(constants.PATH_PIECE_CAPTURE)
 
-def play_error() -> None:
-    """Play the invalid-move error sound."""
-    _play(constants.PATH_ERROR)
+    def play_piece_check(self) -> None:
+        """Play the check sound."""
+        self._play(constants.PATH_PIECE_CHECK)
 
+    def play_piece_move(self, is_capture: bool = False, is_dark: bool = False) -> None:
+        """Play the piece-move sound.
 
-def play_piece_move(is_dark: bool = False) -> None:
-    """Play the piece-move sound.
-
-    :param is_dark: If True, use the alternate sound for dark-player moves
-    """
-    path = constants.PATH_PIECE_MOVE_2 if is_dark else constants.PATH_PIECE_MOVE
-    _play(path)
-
-
-def play_piece_capture() -> None:
-    """Play the piece-capture sound."""
-    _play(constants.PATH_PIECE_CAPTURE)
-
-
-def play_piece_check() -> None:
-    """Play the check sound."""
-    _play(constants.PATH_PIECE_CHECK)
+        :param is_capture: If True, play the capture sound instead of the regular move sound
+        :param is_dark: If True, use the alternate sound for dark-player moves
+        """
+        if is_capture:
+            self.play_piece_capture()
+            return
+        path = constants.PATH_PIECE_MOVE_2 if is_dark else constants.PATH_PIECE_MOVE
+        self._play(path)

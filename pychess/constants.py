@@ -1,4 +1,5 @@
 """Game-wide constants for PyChess: window settings, board dimensions, asset paths, and custom events."""
+import pygame
 
 VERSION = '2026.2.1'
 
@@ -10,10 +11,10 @@ WINDOW_COLOR = (200, 200, 200)
 
 # ==== Custom Pygame Events ==== #
 
-EVENT_WHITE_WINS = 0
-EVENT_BLACK_WINS = 1
-EVENT_DRAW = 2
-EVENT_PROMOTION = 3
+EVENT_WHITE_WINS = pygame.USEREVENT + 1
+EVENT_BLACK_WINS = pygame.USEREVENT + 2
+EVENT_DRAW = pygame.USEREVENT + 3
+EVENT_PROMOTION = pygame.USEREVENT + 4
 
 # ==== Board ==== #
 

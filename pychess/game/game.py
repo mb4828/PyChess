@@ -24,7 +24,7 @@ class Game:
         self.drag_piece_valid_moves: List[Tuple[int, int]] = []
         self.pending_promotion: Optional[Tuple[int, int]] = None
 
-        self.gui.play_game_start()
+        self.gui.sounds.play_game_start()
 
     def drag_start(self, x: int, y: int) -> None:
         """Begin dragging a piece from the square under the cursor.
@@ -33,14 +33,16 @@ class Game:
         :param y: Mouse y coordinate (pixels)
         """
         self.drag_piece = ''
-        sqx, sqy = floor(x / constants.SQ_HEIGHT), floor(y / constants.SQ_HEIGHT)
+        sqx, sqy = floor(x / constants.SQ_HEIGHT), floor(y /
+                                                         constants.SQ_HEIGHT)
         piece = self.engine.get_piece(sqx, sqy)
         if piece and self.engine.is_turn(piece):
             self.engine.state.clear_square(sqx, sqy)
             self.drag_piece = piece
             self.drag_piece_start_sq = (sqx, sqy)
             self.drag_piece_cursor_sq = (sqx, sqy)
-            self.drag_piece_valid_moves = self.engine.get_valid_moves(self.drag_piece, sqx, sqy)
+            self.drag_piece_valid_moves = self.engine.get_valid_moves(
+                self.drag_piece, sqx, sqy)
 
     def drag_continue(self, x: int, y: int) -> None:
         """Update the drag position as the cursor moves.
@@ -49,7 +51,8 @@ class Game:
         :param y: Mouse y coordinate (pixels)
         """
         if self.drag_piece:
-            sqx, sqy = floor(x / constants.SQ_HEIGHT), floor(y / constants.SQ_HEIGHT)
+            sqx, sqy = floor(
+                x / constants.SQ_HEIGHT), floor(y / constants.SQ_HEIGHT)
             self.drag_piece_cursor_sq = (sqx, sqy)
             self.drag_piece_cursor_pos = (x, y)
 
@@ -62,7 +65,7 @@ class Game:
             self._execute_drag_move()
         elif self.drag_piece_cursor_sq != self.drag_piece_start_sq:
             self._return_piece_to_start()
-            self.gui.play_error()
+            self.gui.sounds.play_error()
             self.drag_piece = ''
         else:
             # Piece dropped on starting square — keep highlights visible
@@ -76,7 +79,8 @@ class Game:
         sqx, sqy = self.drag_piece_cursor_sq
         start_sqx, start_sqy = self.drag_piece_start_sq
 
-        result = self.engine.execute_move(self.drag_piece, start_sqx, start_sqy, sqx, sqy)
+        result = self.engine.execute_move(
+            self.drag_piece, start_sqx, start_sqy, sqx, sqy)
 
         if result['is_promotion']:
             self.pending_promotion = result['promotion_square']
@@ -121,19 +125,20 @@ class Game:
         if self.engine.is_in_checkmate(color):
             event_type = constants.EVENT_BLACK_WINS if color == 'l' else constants.EVENT_WHITE_WINS
             pygame.event.post(Event(event_type))
-            self.gui.play_game_over()
+            self.gui.sounds.play_game_over()
         elif self.engine.is_in_stalemate(color):
             pygame.event.post(Event(constants.EVENT_DRAW))
-            self.gui.play_game_over()
+            self.gui.sounds.play_game_over()
         elif self.engine.is_in_check(color):
-            self.gui.play_check()
+            self.gui.sounds.play_piece_check()
         else:
-            self.gui.play_move(is_capture, 'd' in self.drag_piece)
+            self.gui.sounds.play_piece_move(is_capture, 'd' in self.drag_piece)
 
     def draw(self) -> None:
         """Render the board, pieces, and overlays for the current frame."""
         self.gui.draw_board()
-        self.gui.draw_pieces(self.engine.state.board, constants.BOARD_WIDTH, constants.BOARD_HEIGHT)
+        self.gui.draw_pieces(self.engine.state.board,
+                             constants.BOARD_WIDTH, constants.BOARD_HEIGHT)
         self.gui.draw_overlays(
             self.drag_piece, self.drag_piece_start_sq,
             self.drag_piece_cursor_sq, self.drag_piece_cursor_pos,
