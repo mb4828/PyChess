@@ -7,7 +7,7 @@ from pychess.state.move_validator import is_in_check, is_in_checkmate, is_in_sta
 def setup_engine(pieces):
     """Create an engine with an empty board and place pieces."""
     engine = StateManager()
-    engine.get_state().board = [['' for _ in range(8)] for _ in range(8)]
+    engine.get_state()._board = [['' for _ in range(8)] for _ in range(8)]
     for x, y, code in pieces:
         engine.get_state().set_piece(x, y, code)
     return engine
@@ -344,7 +344,7 @@ class TestCheckmateDetectionAfterMultipleMoves:
             (0, 0, 'kd'), (7, 0, 'rd'),  # dark rook already on a1 (back rank)
         ])
         # Dark's turn — rook is already on the back rank, light king is trapped
-        engine.get_context().is_light_turn = False
+        engine.get_context()._is_light_turn = False
 
         # Verify the position: light king on g1 hemmed in by own pawns on f2/g2/h2
         # Dark rook on a1 controls the entire 1st rank
@@ -363,7 +363,7 @@ class TestBoardStateConsistency:
 
         def count_pieces():
             count = 0
-            for row in engine.get_state().board:
+            for row in engine.get_state()._board:
                 for cell in row:
                     if cell:
                         count += 1
@@ -396,7 +396,7 @@ class TestBoardStateConsistency:
         result, _ = simulate_drag_move(engine, 'pl', 4, 4, 3, 3)
         assert result['is_capture'] is True
 
-        count = sum(1 for row in engine.get_state().board for cell in row if cell)
+        count = sum(1 for row in engine.get_state()._board for cell in row if cell)
         assert count == 31, f"After 1 capture, should have 31 pieces, got {count}"
 
     def test_no_ghost_pieces_after_castling(self):
@@ -415,9 +415,9 @@ class TestBoardStateConsistency:
 
         # Count kings and rooks
         kings = sum(
-            1 for row in engine.get_state().board for c in row if c.startswith('k') if c)
+            1 for row in engine.get_state()._board for c in row if c.startswith('k') if c)
         rooks = sum(
-            1 for row in engine.get_state().board for c in row if c.startswith('r') if c)
+            1 for row in engine.get_state()._board for c in row if c.startswith('r') if c)
         assert kings == 2, f"Should have exactly 2 kings, got {kings}"
 
     def test_checkmate_stalemate_dont_corrupt_board(self):
@@ -431,7 +431,7 @@ class TestBoardStateConsistency:
 
         # Snapshot the board
         import copy
-        board_before = copy.deepcopy(engine.get_state().board)
+        board_before = copy.deepcopy(engine.get_state()._board)
 
         # Call checkmate and stalemate detection (these iterate the board)
         is_in_checkmate(engine.get_state(), 'd')
@@ -439,7 +439,7 @@ class TestBoardStateConsistency:
         is_in_check(engine.get_state(), 'd')
 
         # Board should be unchanged
-        assert engine.get_state().board == board_before, "Check/checkmate/stalemate detection mutated the board!"
+        assert engine.get_state()._board == board_before, "Check/checkmate/stalemate detection mutated the board!"
 
     def test_valid_moves_dont_corrupt_board(self):
         """Getting valid moves for a piece should not mutate the board."""
@@ -449,7 +449,7 @@ class TestBoardStateConsistency:
         simulate_drag_move(engine, 'pd', 1, 4, 3, 4)
 
         import copy
-        board_before = copy.deepcopy(engine.get_state().board)
+        board_before = copy.deepcopy(engine.get_state()._board)
 
         # Get valid moves for several pieces (simulating drag_start behavior)
         for x in range(8):
@@ -460,7 +460,7 @@ class TestBoardStateConsistency:
                     engine.get_valid_moves(piece, x, y)
                     engine.get_state().set_piece(x, y, piece)
 
-        assert engine.get_state().board == board_before, "Getting valid moves mutated the board!"
+        assert engine.get_state()._board == board_before, "Getting valid moves mutated the board!"
 
 
 class TestEnPassantMultiMove:

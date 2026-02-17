@@ -11,7 +11,7 @@ from pychess.state import move_validator, move_executor, move_utils
 
 
 class StateManager:
-    """High-level chess engine that manages board state, game context, and move logic."""
+    """Game state manager that manages board state, game context, and move logic."""
 
     def __init__(self) -> None:
         self._state: GameState = GameState()

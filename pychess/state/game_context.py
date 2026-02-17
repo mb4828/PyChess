@@ -8,13 +8,13 @@ class GameContext:
     """Tracks game state beyond the board: castling rights, en passant, and turns."""
 
     def __init__(self) -> None:
-        self.king_moved: Dict[str, bool] = {'l': False, 'd': False}
-        self.rook_moved: Dict[str, Dict[int, bool]] = {
+        self._king_moved: Dict[str, bool] = {'l': False, 'd': False}
+        self._rook_moved: Dict[str, Dict[int, bool]] = {
             'l': {0: False, 7: False},
             'd': {0: False, 7: False},
         }
-        self.en_passant_target: Optional[Tuple[int, int]] = None
-        self.is_light_turn: bool = True
+        self._en_passant_target: Optional[Tuple[int, int]] = None
+        self._is_light_turn: bool = True
 
     # ==== Castling Rights ==== #
 
@@ -24,14 +24,14 @@ class GameContext:
         :param color: 'l' or 'd'
         :return: True if the king has moved
         """
-        return self.king_moved[color]
+        return self._king_moved[color]
 
     def mark_king_moved(self, color: str) -> None:
         """Mark the king of the given color as having moved.
 
         :param color: 'l' or 'd'
         """
-        self.king_moved[color] = True
+        self._king_moved[color] = True
 
     def has_rook_moved(self, color: str, col: int) -> bool:
         """Check if the rook at the given column has moved.
@@ -40,7 +40,7 @@ class GameContext:
         :param col: Column index (0 or 7)
         :return: True if the rook has moved
         """
-        return self.rook_moved[color][col]
+        return self._rook_moved[color][col]
 
     def mark_rook_moved(self, color: str, col: int) -> None:
         """Mark the rook at the given column as having moved.
@@ -48,30 +48,30 @@ class GameContext:
         :param color: 'l' or 'd'
         :param col: Column index (0 or 7)
         """
-        self.rook_moved[color][col] = True
+        self._rook_moved[color][col] = True
 
     # ==== En Passant ==== #
 
     def get_en_passant_target(self) -> Optional[Tuple[int, int]]:
         """Get the en passant target square, or None."""
-        return self.en_passant_target
+        return self._en_passant_target
 
     def set_en_passant_target(self, target: Optional[Tuple[int, int]]) -> None:
         """Set the en passant target square. Pass None to clear.
 
         :param target: (row, col) tuple or None
         """
-        self.en_passant_target = target
+        self._en_passant_target = target
 
     # ==== Turn Management ==== #
 
     def switch_turn(self) -> None:
         """Switch to the other player's turn."""
-        self.is_light_turn = not self.is_light_turn
+        self._is_light_turn = not self._is_light_turn
 
     def current_color(self) -> str:
         """Return the color of the player whose turn it is ('l' or 'd')."""
-        return 'l' if self.is_light_turn else 'd'
+        return 'l' if self._is_light_turn else 'd'
 
     def is_turn(self, piece_code: str) -> bool:
         """Check if it's the turn of the player who owns this piece.
@@ -80,4 +80,4 @@ class GameContext:
         :return: True if the piece belongs to the current player
         """
         color = get_piece_color(piece_code)
-        return (self.is_light_turn and color == 'l') or (not self.is_light_turn and color == 'd')
+        return (self._is_light_turn and color == 'l') or (not self._is_light_turn and color == 'd')

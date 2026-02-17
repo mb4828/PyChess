@@ -47,7 +47,7 @@ class TestTurnManagement:
     def test_light_starts(self):
         ctx = GameContext()
         assert ctx.current_color() == 'l'
-        assert ctx.is_light_turn is True
+        assert ctx._is_light_turn is True
 
     def test_switch_turn(self):
         ctx = GameContext()

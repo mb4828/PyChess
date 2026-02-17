@@ -7,7 +7,7 @@ def setup_engine(pieces):
     pieces: list of (x, y, piece_code) tuples
     """
     engine = StateManager()
-    engine._state.board = [['' for _ in range(8)] for _ in range(8)]
+    engine._state._board = [['' for _ in range(8)] for _ in range(8)]
     for x, y, code in pieces:
         engine._state.set_piece(x, y, code)
     return engine
