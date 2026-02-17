@@ -3,9 +3,8 @@ from typing import List, Tuple
 
 from pychess import constants
 from .game_context import GameContext
-from .game_state import GameState
+from .game_state import GameState, Piece
 from .move_utils import is_piece_at, in_bounds, get_piece_color, in_bounds_y, in_bounds_x, is_same_color
-from .piece import Piece
 
 
 def get_valid_moves(

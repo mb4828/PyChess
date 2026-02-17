@@ -5,7 +5,7 @@ from typing import Dict, Optional
 import pygame
 
 from pychess import constants
-from pychess.state.piece import Piece
+from pychess.state.game_state import Piece
 from .gui_utils import get_resource_path
 
 

@@ -18,6 +18,7 @@ class Game:
         self.gui: GUIManager = GUIManager(window, sounds)
         self.state: StateManager = StateManager()
 
+        self._dragging: bool = False
         self.drag_piece: str = ''
         self.drag_piece_start_sq: Tuple[int, int] = (0, 0)
         self.drag_piece_cursor_sq: Tuple[int, int] = (0, 0)
@@ -26,6 +27,25 @@ class Game:
         self.pending_promotion: Optional[Tuple[int, int]] = None
 
         self.gui.sounds.play_game_start()
+
+    def handle_event(self, event: pygame.event.Event) -> None:
+        """Handle a pygame input event for this game mode.
+
+        Subclasses can override to change or suppress input handling (e.g. blocking
+        mouse events during an AI turn in PVC mode).
+
+        :param event: The pygame event to process
+        """
+        if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+            self._dragging = True
+            y, x = event.pos
+            self.drag_start(x, y)
+        elif event.type == pygame.MOUSEMOTION and self._dragging:
+            y, x = event.pos
+            self.drag_continue(x, y)
+        elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            self._dragging = False
+            self.drag_stop()
 
     def drag_start(self, x: int, y: int) -> None:
         """Begin dragging a piece from the square under the cursor.
