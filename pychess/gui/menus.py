@@ -28,8 +28,7 @@ _ERROR_COLOR = (200, 50, 50, 255)
 
 def _draw_overlay(window: pygame.Surface) -> None:
     """Draw a semi-transparent dark overlay behind a menu."""
-    draw_solid_rect(window, constants.WINDOW_WIDTH,
-                    constants.WINDOW_HEIGHT, 0, 0, _OVERLAY_COLOR, _OVERLAY_ALPHA)
+    draw_solid_rect(window, constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT, 0, 0, _OVERLAY_COLOR, _OVERLAY_ALPHA)
 
 
 def _on_select(sounds: Sounds) -> Callable:
@@ -90,6 +89,8 @@ class StartMenu(Menu):
         self.menu.add.image(get_resource_path(constants.PATH_LOGO), scale=(.6, .6), scale_smooth=True)
         self._add_button('Play', on_start_press)
         self._add_button('Quit', on_quit_press, True)
+        self.menu.add.vertical_margin(10)
+        self.menu.add.label('\u00a92026 Matt Brauner', font_size=12, font_color=(120, 120, 120, 255))
 
     def draw(self, window: pygame.Surface, events: List[pygame.event.Event]) -> None:
         """Render the start menu with the board background.
