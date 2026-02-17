@@ -6,16 +6,17 @@ from typing import Optional
 import pygame
 
 from pychess import constants
+from pychess.game.game import Game
 from pychess.gui.gui_utils import get_resource_path
 from pychess.gui.menus import StartMenu, PauseMenu, GameOverMenu, PromotionMenu
-from pychess.game.pvp import PVPGame
+from pychess.gui.sounds import Sounds
+from pychess.game.pvp_game import PVPGame
 
 logger = logging.getLogger(__name__)
 
 
 class GameState(Enum):
     """Possible states of the PyChess application."""
-
     START = 1
     PAUSE = 2
     PVP = 3
@@ -28,25 +29,28 @@ class PyChess:
 
     def __init__(self) -> None:
         pygame.init()
-        pygame.mixer.init()
 
-        self.window: pygame.Surface = pygame.display.set_mode((constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT))
+        self.window: pygame.Surface = pygame.display.set_mode(
+            (constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT))
         self.clock: pygame.time.Clock = pygame.time.Clock()
         self.game_state: GameState = GameState.START
         self.running: bool = True
         self.dragging: bool = False
-        self.game: Optional[PVPGame] = None
+        self.game: Optional[Game] = None
+        self.sounds: Sounds = Sounds()
 
         pygame.display.set_caption(f'PyChess v{constants.VERSION}')
-        pygame.display.set_icon(pygame.image.load(get_resource_path(constants.PATH_KL)))
+        pygame.display.set_icon(pygame.image.load(
+            get_resource_path(constants.PATH_KL)))
 
-        self.start_menu = StartMenu(self.start_pvp_game, self.quit_game)
+        self.start_menu = StartMenu(self.start_pvp_game, self.quit_game, self.sounds)
         self.pause_menu = PauseMenu(
             lambda: self.set_game_state(GameState.PVP),
             lambda: self.set_game_state(GameState.START),
+            self.sounds,
         )
-        self.game_over_menu = GameOverMenu(lambda: self.set_game_state(GameState.START))
-        self.promotion_menu = PromotionMenu(self.on_promotion_select)
+        self.game_over_menu = GameOverMenu(lambda: self.set_game_state(GameState.START), self.sounds)
+        self.promotion_menu = PromotionMenu(self.on_promotion_select, self.sounds)
 
         self.main()
 
@@ -59,7 +63,7 @@ class PyChess:
 
     def start_pvp_game(self) -> None:
         """Initialize and start a new player-vs-player game."""
-        self.game = PVPGame(self.window)
+        self.game = PVPGame(self.window, self.sounds)
         self.game_state = GameState.PVP
 
     def quit_game(self) -> None:
@@ -87,7 +91,6 @@ class PyChess:
             self.clock.tick(60)
 
         pygame.quit()
-        pygame.mixer.quit()
 
     def _handle_event(self, event: pygame.event.Event) -> None:
         """Dispatch a single pygame event to the appropriate handler."""

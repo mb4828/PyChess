@@ -6,16 +6,17 @@ import pygame
 from pygame.event import Event
 
 from pychess import constants
-from pychess.gui.gui import GUI
-from pychess.engine.engine import GameEngine
+from pychess.gui.sounds import Sounds
+from pychess.gui_manager import GUIManager
+from pychess.state_manager import StateManager
 
 
 class Game:
     """Base class for all game modes. Handles drag-and-drop piece movement, promotion, and post-move checks."""
 
-    def __init__(self, window: pygame.Surface) -> None:
-        self.gui: GUI = GUI(window)
-        self.engine: GameEngine = GameEngine()
+    def __init__(self, window: pygame.Surface, sounds: Sounds) -> None:
+        self.gui: GUIManager = GUIManager(window, sounds)
+        self.state: StateManager = StateManager()
 
         self.drag_piece: str = ''
         self.drag_piece_start_sq: Tuple[int, int] = (0, 0)
@@ -35,13 +36,13 @@ class Game:
         self.drag_piece = ''
         sqx, sqy = floor(x / constants.SQ_HEIGHT), floor(y /
                                                          constants.SQ_HEIGHT)
-        piece = self.engine.get_piece(sqx, sqy)
-        if piece and self.engine.is_turn(piece):
-            self.engine.state.clear_square(sqx, sqy)
+        piece = self.state.get_piece(sqx, sqy)
+        if piece and self.state.is_turn(piece):
+            self.state.state.clear_square(sqx, sqy)
             self.drag_piece = piece
             self.drag_piece_start_sq = (sqx, sqy)
             self.drag_piece_cursor_sq = (sqx, sqy)
-            self.drag_piece_valid_moves = self.engine.get_valid_moves(
+            self.drag_piece_valid_moves = self.state.get_valid_moves(
                 self.drag_piece, sqx, sqy)
 
     def drag_continue(self, x: int, y: int) -> None:
@@ -79,7 +80,7 @@ class Game:
         sqx, sqy = self.drag_piece_cursor_sq
         start_sqx, start_sqy = self.drag_piece_start_sq
 
-        result = self.engine.execute_move(
+        result = self.state.execute_move(
             self.drag_piece, start_sqx, start_sqy, sqx, sqy)
 
         if result['is_promotion']:
@@ -93,7 +94,7 @@ class Game:
     def _return_piece_to_start(self) -> None:
         """Place the dragged piece back on its starting square."""
         sqx, sqy = self.drag_piece_start_sq
-        self.engine.state.set_piece(sqx, sqy, self.drag_piece)
+        self.state.state.set_piece(sqx, sqy, self.drag_piece)
 
     def complete_promotion(self, piece_type: str) -> None:
         """Handle pawn promotion after the player selects a piece type.
@@ -102,7 +103,7 @@ class Game:
         """
         if self.pending_promotion:
             px, py = self.pending_promotion
-            self.engine.promote_pawn(px, py, piece_type)
+            self.state.promote_pawn(px, py, piece_type)
             self.pending_promotion = None
             self._on_move_complete(False)
 
@@ -113,7 +114,7 @@ class Game:
 
         :param is_capture: Whether the move captured an opponent's piece
         """
-        self.engine.switch_turn()
+        self.state.switch_turn()
         self._post_move_checks(is_capture)
 
     def _post_move_checks(self, is_capture: bool) -> None:
@@ -121,15 +122,15 @@ class Game:
 
         :param is_capture: Whether the move captured an opponent's piece
         """
-        color = self.engine.current_color()
-        if self.engine.is_in_checkmate(color):
+        color = self.state.current_color()
+        if self.state.is_in_checkmate(color):
             event_type = constants.EVENT_BLACK_WINS if color == 'l' else constants.EVENT_WHITE_WINS
             pygame.event.post(Event(event_type))
             self.gui.sounds.play_game_over()
-        elif self.engine.is_in_stalemate(color):
+        elif self.state.is_in_stalemate(color):
             pygame.event.post(Event(constants.EVENT_DRAW))
             self.gui.sounds.play_game_over()
-        elif self.engine.is_in_check(color):
+        elif self.state.is_in_check(color):
             self.gui.sounds.play_piece_check()
         else:
             self.gui.sounds.play_piece_move(is_capture, 'd' in self.drag_piece)
@@ -137,7 +138,7 @@ class Game:
     def draw(self) -> None:
         """Render the board, pieces, and overlays for the current frame."""
         self.gui.draw_board()
-        self.gui.draw_pieces(self.engine.state.board,
+        self.gui.draw_pieces(self.state.state.board,
                              constants.BOARD_WIDTH, constants.BOARD_HEIGHT)
         self.gui.draw_overlays(
             self.drag_piece, self.drag_piece_start_sq,

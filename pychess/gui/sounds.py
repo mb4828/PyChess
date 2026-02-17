@@ -8,12 +8,23 @@ from .gui_utils import get_resource_path
 class Sounds:
     """Class for managing sound effects."""
 
-    def _play(self, path: str) -> None:
+    def __init__(self) -> None:
+        """Initialize the Sounds instance."""
+        pygame.mixer.init()
+
+    def __del__(self) -> None:
+        """Clean up the mixer on deletion."""
+        pygame.mixer.quit()
+
+    def _play(self, path: str, volume: float = 1.0) -> None:
         """Load and play a sound asset.
 
         :param path: Relative path to the sound file
+        :param volume: Volume level (0.0 to 1.0)
         """
-        pygame.mixer.Sound(get_resource_path(path)).play()
+        sound = pygame.mixer.Sound(get_resource_path(path))
+        sound.set_volume(volume)
+        sound.play()
 
     def play_game_start(self) -> None:
         """Play the game-start sound."""
@@ -46,3 +57,11 @@ class Sounds:
             return
         path = constants.PATH_PIECE_MOVE_2 if is_dark else constants.PATH_PIECE_MOVE
         self._play(path)
+
+    def play_menu_click(self) -> None:
+        """Play the menu-click sound."""
+        self._play(constants.PATH_MENU_CLICK, volume=0.25)
+
+    def play_menu_confirm(self) -> None:
+        """Play the menu-selection sound."""
+        self._play(constants.PATH_MENU_CONFIRM)

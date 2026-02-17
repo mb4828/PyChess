@@ -5,18 +5,18 @@ from typing import List, Tuple
 import pygame
 
 from pychess import constants
-from .gui_utils import draw_board as _draw_board, draw_solid_rect, draw_solid_circle
-from .sprites import Sprites
-from .sounds import Sounds
+from pychess.gui.gui_utils import draw_board as _draw_board, draw_solid_rect, draw_solid_circle
+from pychess.gui.sprites import Sprites
+from pychess.gui.sounds import Sounds
 
 
-class GUI:
+class GUIManager:
     """Facade for all rendering and audio operations."""
 
-    def __init__(self, window: pygame.Surface) -> None:
+    def __init__(self, window: pygame.Surface, sounds: Sounds) -> None:
         self.window: pygame.Surface = window
         self.sprites: Sprites = Sprites(window)
-        self.sounds: Sounds = Sounds()
+        self.sounds: Sounds = sounds
 
     # ==== Board Rendering ==== #
 

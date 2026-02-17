@@ -1,11 +1,11 @@
 """Integration tests that simulate multi-move games to verify state consistency."""
-from pychess.engine.engine import GameEngine
-from pychess.engine.move_validator import is_in_check, is_in_checkmate, is_in_stalemate
+from pychess.state_manager import StateManager
+from pychess.state.move_validator import is_in_check, is_in_checkmate, is_in_stalemate
 
 
 def setup_engine(pieces):
     """Create an engine with an empty board and place pieces."""
-    engine = GameEngine()
+    engine = StateManager()
     engine.state.board = [['' for _ in range(8)] for _ in range(8)]
     for x, y, code in pieces:
         engine.state.set_piece(x, y, code)
@@ -43,7 +43,7 @@ class TestMultiMoveGame:
     """Play through a real opening (Ruy Lopez) and verify moves at each step."""
 
     def test_ruy_lopez_opening(self):
-        engine = GameEngine()
+        engine = StateManager()
 
         # 1. e4
         simulate_drag_move(engine, 'pl', 6, 4, 4, 4)
@@ -85,7 +85,7 @@ class TestMultiMoveGame:
 
     def test_italian_game_with_captures(self):
         """Play through Italian Game with captures to test state consistency."""
-        engine = GameEngine()
+        engine = StateManager()
 
         # 1. e4 e5
         simulate_drag_move(engine, 'pl', 6, 4, 4, 4)
@@ -104,14 +104,19 @@ class TestMultiMoveGame:
         simulate_drag_move(engine, 'pd', 1, 3, 2, 3)
 
         # Verify pieces haven't been lost/duplicated
-        assert engine.get_piece(4, 2) == 'bl', "Light bishop should still be on c4"
-        assert engine.get_piece(3, 2) == 'bd', "Dark bishop should still be on c5"
-        assert engine.get_piece(5, 5) == 'nl', "Light knight should still be on f3"
-        assert engine.get_piece(2, 2) == 'nd', "Dark knight should still be on c6"
+        assert engine.get_piece(
+            4, 2) == 'bl', "Light bishop should still be on c4"
+        assert engine.get_piece(
+            3, 2) == 'bd', "Dark bishop should still be on c5"
+        assert engine.get_piece(
+            5, 5) == 'nl', "Light knight should still be on f3"
+        assert engine.get_piece(
+            2, 2) == 'nd', "Dark knight should still be on c6"
 
         # Light pawn on d3 (5,3) should be able to advance to d4 (4,3) which is empty
         d3_pawn_moves = get_drag_valid_moves(engine, 5, 3)
-        assert (4, 3) in d3_pawn_moves, "d3 pawn should be able to advance to d4 (empty square)"
+        assert (
+            4, 3) in d3_pawn_moves, "d3 pawn should be able to advance to d4 (empty square)"
         # d3 pawn should NOT be able to capture diagonally (no enemies on c4 or e4)
         # c4 (4,2) has the light bishop, e4 (4,4) has the light pawn
         assert (4, 2) not in d3_pawn_moves, "d3 pawn can't capture own bishop on c4"
@@ -125,7 +130,7 @@ class TestPawnCapturesAfterMultipleMoves:
     """Specifically test that pawn captures work correctly after several moves."""
 
     def test_pawn_capture_available_midgame(self):
-        engine = GameEngine()
+        engine = StateManager()
 
         # 1. e4 d5 (Scandinavian Defense)
         simulate_drag_move(engine, 'pl', 6, 4, 4, 4)
@@ -138,8 +143,10 @@ class TestPawnCapturesAfterMultipleMoves:
 
         # 2. exd5
         simulate_drag_move(engine, 'pl', 4, 4, 3, 3)
-        assert engine.get_piece(3, 3) == 'pl', "Light pawn should be on d5 after capture"
-        assert engine.get_piece(4, 4) == '', "e4 should be empty after pawn moved"
+        assert engine.get_piece(
+            3, 3) == 'pl', "Light pawn should be on d5 after capture"
+        assert engine.get_piece(
+            4, 4) == '', "e4 should be empty after pawn moved"
 
     def test_pawn_capture_both_diagonals(self):
         """Set up a position where a pawn can capture on both diagonals."""
@@ -156,7 +163,7 @@ class TestPawnCapturesAfterMultipleMoves:
         assert (3, 4) in pawn_moves, "Pawn should be able to capture on e5"
 
     def test_dark_pawn_capture_after_several_moves(self):
-        engine = GameEngine()
+        engine = StateManager()
 
         # 1. e4 e5 2. d4
         simulate_drag_move(engine, 'pl', 6, 4, 4, 4)
@@ -172,7 +179,7 @@ class TestBishopSlidingAfterMultipleMoves:
     """Verify bishops maintain full diagonal range throughout the game."""
 
     def test_bishop_full_diagonal_midgame(self):
-        engine = GameEngine()
+        engine = StateManager()
 
         # 1. e4 e5 2. Bc4
         simulate_drag_move(engine, 'pl', 6, 4, 4, 4)
@@ -232,14 +239,15 @@ class TestBishopSlidingAfterMultipleMoves:
         assert (6, 2) in bishop_moves
         assert (7, 1) in bishop_moves
 
-        assert len(bishop_moves) == 13, f"Bishop on e4 (empty board + 2 kings) should have 13 moves, got {len(bishop_moves)}"
+        assert len(
+            bishop_moves) == 13, f"Bishop on e4 (empty board + 2 kings) should have 13 moves, got {len(bishop_moves)}"
 
 
 class TestKnightMovesAfterMultipleMoves:
     """Verify knights have correct moves after several game turns."""
 
     def test_knight_moves_midgame(self):
-        engine = GameEngine()
+        engine = StateManager()
 
         # 1. e4 e5 2. Nf3 Nc6 3. d4
         simulate_drag_move(engine, 'pl', 6, 4, 4, 4)
@@ -271,7 +279,8 @@ class TestKnightMovesAfterMultipleMoves:
         ])
 
         knight_moves = get_drag_valid_moves(engine, 4, 4)
-        expected = {(2, 3), (2, 5), (3, 2), (3, 6), (5, 2), (5, 6), (6, 3), (6, 5)}
+        expected = {(2, 3), (2, 5), (3, 2), (3, 6),
+                    (5, 2), (5, 6), (6, 3), (6, 5)}
         assert set(knight_moves) == expected, (
             f"Knight on e4 should have 8 moves, got {sorted(knight_moves)}"
         )
@@ -282,7 +291,7 @@ class TestCheckmateDetectionAfterMultipleMoves:
 
     def test_scholars_mate(self):
         """Scholar's mate: 1. e4 e5 2. Bc4 Nc6 3. Qh5 Nf6?? 4. Qxf7#"""
-        engine = GameEngine()
+        engine = StateManager()
 
         # 1. e4 e5
         simulate_drag_move(engine, 'pl', 6, 4, 4, 4)
@@ -301,13 +310,16 @@ class TestCheckmateDetectionAfterMultipleMoves:
         assert result['is_capture'] is True
 
         # Now it's dark's turn - should be checkmate
-        assert is_in_check(engine.state.board, 'd') is True, "Dark king should be in check"
-        assert is_in_checkmate(engine.state.board, 'd') is True, "This should be checkmate"
-        assert not is_in_stalemate(engine.state.board, 'd'), "This is not stalemate"
+        assert is_in_check(engine.state.board,
+                           'd') is True, "Dark king should be in check"
+        assert is_in_checkmate(
+            engine.state.board, 'd') is True, "This should be checkmate"
+        assert not is_in_stalemate(
+            engine.state.board, 'd'), "This is not stalemate"
 
     def test_fools_mate(self):
         """Fool's mate: 1. f3 e5 2. g4?? Qh4#"""
-        engine = GameEngine()
+        engine = StateManager()
 
         # 1. f3 e5
         simulate_drag_move(engine, 'pl', 6, 5, 5, 5)
@@ -318,13 +330,16 @@ class TestCheckmateDetectionAfterMultipleMoves:
         simulate_drag_move(engine, 'qd', 0, 3, 4, 7)
 
         # Light should be in checkmate
-        assert is_in_check(engine.state.board, 'l') is True, "Light king should be in check"
-        assert is_in_checkmate(engine.state.board, 'l') is True, "This should be checkmate"
+        assert is_in_check(engine.state.board,
+                           'l') is True, "Light king should be in check"
+        assert is_in_checkmate(
+            engine.state.board, 'l') is True, "This should be checkmate"
 
     def test_back_rank_mate_after_sequence(self):
         """Set up a back rank mate position: rook delivers mate along the back rank."""
         engine = setup_engine([
-            (7, 6, 'kl'), (6, 5, 'pl'), (6, 6, 'pl'), (6, 7, 'pl'),  # castled king position
+            (7, 6, 'kl'), (6, 5, 'pl'), (6, 6, 'pl'), (6,
+                                                       7, 'pl'),  # castled king position
             (0, 0, 'kd'), (7, 0, 'rd'),  # dark rook already on a1 (back rank)
         ])
         # Dark's turn — rook is already on the back rank, light king is trapped
@@ -332,8 +347,10 @@ class TestCheckmateDetectionAfterMultipleMoves:
 
         # Verify the position: light king on g1 hemmed in by own pawns on f2/g2/h2
         # Dark rook on a1 controls the entire 1st rank
-        assert is_in_check(engine.state.board, 'l') is True, "Light king should be in check from rook on a1"
-        assert is_in_checkmate(engine.state.board, 'l') is True, "This should be back rank checkmate"
+        assert is_in_check(
+            engine.state.board, 'l') is True, "Light king should be in check from rook on a1"
+        assert is_in_checkmate(
+            engine.state.board, 'l') is True, "This should be back rank checkmate"
 
 
 class TestBoardStateConsistency:
@@ -341,7 +358,7 @@ class TestBoardStateConsistency:
 
     def test_piece_count_preserved(self):
         """After several moves without captures, piece count should be constant."""
-        engine = GameEngine()
+        engine = StateManager()
 
         def count_pieces():
             count = 0
@@ -370,7 +387,7 @@ class TestBoardStateConsistency:
 
     def test_piece_count_after_capture(self):
         """After a capture, piece count should decrease by 1."""
-        engine = GameEngine()
+        engine = StateManager()
 
         # 1. e4 d5 2. exd5 (capture)
         simulate_drag_move(engine, 'pl', 6, 4, 4, 4)
@@ -396,13 +413,15 @@ class TestBoardStateConsistency:
         assert engine.get_piece(7, 7) == ''
 
         # Count kings and rooks
-        kings = sum(1 for row in engine.state.board for c in row if c.startswith('k') if c)
-        rooks = sum(1 for row in engine.state.board for c in row if c.startswith('r') if c)
+        kings = sum(
+            1 for row in engine.state.board for c in row if c.startswith('k') if c)
+        rooks = sum(
+            1 for row in engine.state.board for c in row if c.startswith('r') if c)
         assert kings == 2, f"Should have exactly 2 kings, got {kings}"
 
     def test_checkmate_stalemate_dont_corrupt_board(self):
         """Calling is_in_checkmate/stalemate should not mutate the board."""
-        engine = GameEngine()
+        engine = StateManager()
 
         # Play a few moves
         simulate_drag_move(engine, 'pl', 6, 4, 4, 4)
@@ -423,7 +442,7 @@ class TestBoardStateConsistency:
 
     def test_valid_moves_dont_corrupt_board(self):
         """Getting valid moves for a piece should not mutate the board."""
-        engine = GameEngine()
+        engine = StateManager()
 
         simulate_drag_move(engine, 'pl', 6, 4, 4, 4)
         simulate_drag_move(engine, 'pd', 1, 4, 3, 4)
@@ -447,19 +466,21 @@ class TestEnPassantMultiMove:
     """Verify en passant works correctly in a real game sequence."""
 
     def test_en_passant_available_after_double_push(self):
-        engine = GameEngine()
+        engine = StateManager()
 
         # 1. e4 d5 2. e5 f5 (dark double-pushes f pawn next to white e5 pawn)
         simulate_drag_move(engine, 'pl', 6, 4, 4, 4)
         simulate_drag_move(engine, 'pd', 1, 3, 3, 3)
-        simulate_drag_move(engine, 'pl', 4, 4, 3, 4)  # not a capture since exd5 was played? Wait...
+        # not a capture since exd5 was played? Wait...
+        simulate_drag_move(engine, 'pl', 4, 4, 3, 4)
 
         # Actually let me redo this. 1. e4 Nf6 2. e5 d5 (en passant available)
-        engine = GameEngine()
+        engine = StateManager()
         simulate_drag_move(engine, 'pl', 6, 4, 4, 4)
         simulate_drag_move(engine, 'nd', 0, 6, 2, 5)
         simulate_drag_move(engine, 'pl', 4, 4, 3, 4)  # e5
-        simulate_drag_move(engine, 'pd', 1, 3, 3, 3)  # d5 - double push next to e5 pawn
+        # d5 - double push next to e5 pawn
+        simulate_drag_move(engine, 'pd', 1, 3, 3, 3)
 
         # En passant target should be set
         assert engine.context.get_en_passant_target() == (2, 3)
@@ -470,7 +491,7 @@ class TestEnPassantMultiMove:
         assert (2, 4) in e5_moves, "Normal advance should also be available"
 
     def test_en_passant_expires_after_one_move(self):
-        engine = GameEngine()
+        engine = StateManager()
 
         # 1. e4 Nf6 2. e5 d5 3. Nf3 (white doesn't take en passant)
         simulate_drag_move(engine, 'pl', 6, 4, 4, 4)

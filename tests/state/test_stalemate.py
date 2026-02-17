@@ -1,5 +1,5 @@
 """Tests for stalemate detection"""
-from pychess.engine.move_validator import is_in_stalemate, is_in_checkmate
+from pychess.state.move_validator import is_in_stalemate, is_in_checkmate
 
 
 def empty_board():

@@ -1,5 +1,5 @@
 """Tests for basic piece movement validation"""
-from pychess.engine.move_validator import get_valid_moves
+from pychess.state.move_validator import get_valid_moves
 
 
 def empty_board():
@@ -12,7 +12,8 @@ class TestKingMoves:
         board[4][4] = 'kl'
         moves = get_valid_moves(board, 'kl', 4, 4)
         assert len(moves) == 8
-        expected = {(3, 3), (3, 4), (3, 5), (4, 3), (4, 5), (5, 3), (5, 4), (5, 5)}
+        expected = {(3, 3), (3, 4), (3, 5), (4, 3),
+                    (4, 5), (5, 3), (5, 4), (5, 5)}
         assert set(moves) == expected
 
     def test_king_corner(self):
@@ -109,7 +110,8 @@ class TestKnightMoves:
         board = empty_board()
         board[4][4] = 'nl'
         moves = get_valid_moves(board, 'nl', 4, 4)
-        expected = {(2, 3), (2, 5), (3, 2), (3, 6), (5, 2), (5, 6), (6, 3), (6, 5)}
+        expected = {(2, 3), (2, 5), (3, 2), (3, 6),
+                    (5, 2), (5, 6), (6, 3), (6, 5)}
         assert set(moves) == expected
 
     def test_knight_corner(self):

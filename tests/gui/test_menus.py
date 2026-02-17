@@ -7,6 +7,7 @@ import pygame_menu
 
 from pychess import constants
 from pychess.gui.menus import StartMenu, PauseMenu, PromotionMenu, GameOverMenu, _draw_overlay
+from pychess.gui.sounds import Sounds
 
 
 class TestDrawOverlay:
@@ -34,7 +35,7 @@ class TestStartMenu:
         """StartMenu should have Play and Quit buttons."""
         on_start = MagicMock()
         on_quit = MagicMock()
-        menu = StartMenu(on_start, on_quit)
+        menu = StartMenu(on_start, on_quit, MagicMock(spec=Sounds))
 
         widgets = menu.menu.get_widgets()
         labels = [w.get_title() for w in widgets if hasattr(w, 'get_title')]
@@ -44,7 +45,7 @@ class TestStartMenu:
     @patch('pychess.gui.menus.get_resource_path', side_effect=lambda p: p)
     def test_draw_renders_board_overlay_and_menu(self, _mock_path):
         """StartMenu.draw should render board background, overlay, and menu."""
-        menu = StartMenu(MagicMock(), MagicMock())
+        menu = StartMenu(MagicMock(), MagicMock(), MagicMock(spec=Sounds))
         window = MagicMock(spec=pygame.Surface)
         events = []
 
@@ -64,7 +65,7 @@ class TestPauseMenu:
 
     def test_has_resume_and_resign_buttons(self):
         """PauseMenu should have Resume and Resign buttons."""
-        menu = PauseMenu(MagicMock(), MagicMock())
+        menu = PauseMenu(MagicMock(), MagicMock(), MagicMock(spec=Sounds))
 
         widgets = menu.menu.get_widgets()
         labels = [w.get_title() for w in widgets if hasattr(w, 'get_title')]
@@ -73,7 +74,7 @@ class TestPauseMenu:
 
     def test_draw_renders_overlay_and_menu(self):
         """PauseMenu.draw should render the overlay and menu widgets."""
-        menu = PauseMenu(MagicMock(), MagicMock())
+        menu = PauseMenu(MagicMock(), MagicMock(), MagicMock(spec=Sounds))
         window = MagicMock(spec=pygame.Surface)
 
         with patch('pychess.gui.menus._draw_overlay') as mock_overlay:
@@ -88,7 +89,7 @@ class TestPromotionMenu:
 
     def test_has_four_piece_buttons(self):
         """PromotionMenu should have Queen, Rook, Bishop, Knight buttons."""
-        menu = PromotionMenu(MagicMock())
+        menu = PromotionMenu(MagicMock(), MagicMock(spec=Sounds))
 
         widgets = menu.menu.get_widgets()
         labels = [w.get_title() for w in widgets if hasattr(w, 'get_title')]
@@ -99,7 +100,7 @@ class TestPromotionMenu:
 
     def test_has_label(self):
         """PromotionMenu should have a 'Promote pawn to:' label."""
-        menu = PromotionMenu(MagicMock())
+        menu = PromotionMenu(MagicMock(), MagicMock(spec=Sounds))
 
         widgets = menu.menu.get_widgets()
         labels = [w.get_title() for w in widgets if hasattr(w, 'get_title')]
@@ -111,7 +112,7 @@ class TestGameOverMenu:
 
     def test_set_winner_white(self):
         """set_winner(True) should display 'White wins'."""
-        menu = GameOverMenu(MagicMock())
+        menu = GameOverMenu(MagicMock(), MagicMock(spec=Sounds))
         menu.set_winner(True)
 
         widgets = menu.menu.get_widgets()
@@ -121,7 +122,7 @@ class TestGameOverMenu:
 
     def test_set_winner_black(self):
         """set_winner(False) should display 'Black wins'."""
-        menu = GameOverMenu(MagicMock())
+        menu = GameOverMenu(MagicMock(), MagicMock(spec=Sounds))
         menu.set_winner(False)
 
         widgets = menu.menu.get_widgets()
@@ -130,7 +131,7 @@ class TestGameOverMenu:
 
     def test_set_draw(self):
         """set_draw should display 'Draw - Stalemate'."""
-        menu = GameOverMenu(MagicMock())
+        menu = GameOverMenu(MagicMock(), MagicMock(spec=Sounds))
         menu.set_draw()
 
         widgets = menu.menu.get_widgets()
@@ -140,7 +141,7 @@ class TestGameOverMenu:
 
     def test_set_winner_clears_previous(self):
         """Calling set_winner after set_draw should replace the content."""
-        menu = GameOverMenu(MagicMock())
+        menu = GameOverMenu(MagicMock(), MagicMock(spec=Sounds))
         menu.set_draw()
         menu.set_winner(True)
 

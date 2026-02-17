@@ -1,5 +1,5 @@
 """Tests for check and checkmate logic"""
-from pychess.engine.move_validator import is_in_check, is_in_checkmate, get_valid_moves
+from pychess.state.move_validator import is_in_check, is_in_checkmate, get_valid_moves
 
 
 def empty_board():
@@ -60,7 +60,8 @@ class TestIsInCheck:
         board[4][4] = 'kl'
         board[0][4] = 'rd'
         assert is_in_check(board, 'l') is True
-        assert is_in_check(board, 'pl') is True  # should also work with piece code
+        # should also work with piece code
+        assert is_in_check(board, 'pl') is True
 
 
 class TestKingCannotMoveIntoCheck:
@@ -95,7 +96,8 @@ class TestKingCannotMoveIntoCheck:
         board[4][7] = 'rd'
         # King removed from (4,4) before calling
         moves = get_valid_moves(board, 'kl', 4, 4)
-        assert (4, 5) not in moves  # capturing puts king in check from other rook
+        # capturing puts king in check from other rook
+        assert (4, 5) not in moves
 
 
 class TestCheckmate:
@@ -149,7 +151,8 @@ class TestStalemate:
         board[0][0] = 'kl'  # light king in corner
         board[2][1] = 'qd'  # queen controls escape squares
         board[1][2] = 'kd'  # dark king covers remaining squares
-        assert is_in_check(board, 'l') is False, "King should not be in check in stalemate"
+        assert is_in_check(
+            board, 'l') is False, "King should not be in check in stalemate"
         # BUG: This should be False (stalemate is not checkmate) but the code returns True
         assert is_in_checkmate(board, 'l') is False, \
             "Stalemate should not be treated as checkmate! This is a draw."

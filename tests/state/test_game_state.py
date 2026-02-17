@@ -1,5 +1,5 @@
 """Tests for engine/game_state.py"""
-from pychess.engine.game_state import GameState
+from pychess.state.game_state import GameState
 
 
 class TestGameStateInit:

@@ -1,10 +1,11 @@
-"""Tests for pychess.gui.gui: the GUI facade class."""
+"""Tests for pychess.gui.gui_manager: the GUI manager class."""
 from math import floor
-from unittest.mock import patch, MagicMock, call
+from unittest.mock import patch, MagicMock
 
 import pygame
 
 from pychess import constants
+from pychess.gui.sounds import Sounds
 
 
 def _make_gui():
@@ -14,9 +15,9 @@ def _make_gui():
 
     with patch('pychess.gui.sprites.pygame.image.load', return_value=mock_surface):
         with patch('pychess.gui.sprites.get_resource_path', side_effect=lambda p: p):
-            from pychess.gui.gui import GUI
+            from pychess.gui_manager import GUIManager
             window = MagicMock(spec=pygame.Surface)
-            gui = GUI(window)
+            gui = GUIManager(window, MagicMock(spec=Sounds))
             return gui, window
 
 
@@ -62,7 +63,8 @@ class TestDrawDraggedPiece:
 
         with patch.object(gui.sprites, 'get_sprite_from_code', return_value=mock_sprite) as mock_get:
             gui.draw_dragged_piece('pl', (200, 300), (3, 3), (4, 4))
-            mock_get.assert_called_once_with('pl', expected_scale, expected_scale)
+            mock_get.assert_called_once_with(
+                'pl', expected_scale, expected_scale)
 
     def test_scaled_piece_centered_on_cursor(self):
         """The scaled piece should be centered on the cursor position."""
@@ -138,7 +140,8 @@ class TestDrawOverlays:
         with patch.object(gui, 'draw_square_highlight') as mock_highlight:
             with patch.object(gui, 'draw_move_hint') as mock_hint:
                 with patch.object(gui, 'draw_dragged_piece') as mock_drag:
-                    gui.draw_overlays('pl', (6, 4), (5, 4), (400, 375), valid_moves)
+                    gui.draw_overlays('pl', (6, 4), (5, 4),
+                                      (400, 375), valid_moves)
 
                     # Should highlight start and cursor squares
                     assert mock_highlight.call_count == 2
@@ -152,7 +155,8 @@ class TestDrawOverlays:
                     mock_hint.assert_any_call(5, 5)
 
                     # Should draw the dragged piece
-                    mock_drag.assert_called_once_with('pl', (400, 375), (6, 4), (5, 4))
+                    mock_drag.assert_called_once_with(
+                        'pl', (400, 375), (6, 4), (5, 4))
 
     def test_no_overlays_when_not_dragging(self):
         """When drag_piece is empty, no overlays should be drawn."""
@@ -186,7 +190,7 @@ class TestDrawSquareHighlight:
         gui, _ = _make_gui()
         sq = constants.SQ_HEIGHT
 
-        with patch('pychess.gui.gui.draw_solid_rect') as mock_rect:
+        with patch('pychess.gui_manager.draw_solid_rect') as mock_rect:
             gui.draw_square_highlight(3, 5)
             mock_rect.assert_called_once_with(
                 gui.window, sq, sq,
@@ -203,7 +207,7 @@ class TestDrawMoveHint:
         gui, _ = _make_gui()
         sq = constants.SQ_HEIGHT
 
-        with patch('pychess.gui.gui.draw_solid_circle') as mock_circle:
+        with patch('pychess.gui_manager.draw_solid_circle') as mock_circle:
             gui.draw_move_hint(2, 6)
             mock_circle.assert_called_once_with(
                 gui.window, sq, sq,

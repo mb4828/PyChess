@@ -1,12 +1,12 @@
 """Tests for engine/game_engine.py"""
-from pychess.engine.engine import GameEngine
+from pychess.state_manager import StateManager
 
 
 def setup_engine(pieces):
     """Create an engine with an empty board and place pieces.
     pieces: list of (x, y, piece_code) tuples
     """
-    engine = GameEngine()
+    engine = StateManager()
     engine.state.board = [['' for _ in range(8)] for _ in range(8)]
     for x, y, code in pieces:
         engine.state.set_piece(x, y, code)
@@ -29,14 +29,14 @@ class TestExecuteMove:
         assert result['is_capture'] is True
 
     def test_castling_rights_updated_on_king_move(self):
-        engine = GameEngine()
+        engine = StateManager()
         engine.state.clear_square(6, 4)  # clear pawn in front of king
         engine.execute_move('kl', 7, 4, 6, 4)
         assert engine.context.has_king_moved('l') is True
         assert engine.context.has_king_moved('d') is False
 
     def test_castling_rights_updated_on_rook_move(self):
-        engine = GameEngine()
+        engine = StateManager()
         engine.state.clear_square(6, 0)  # clear pawn in front of rook
         engine.execute_move('rl', 7, 0, 6, 0)
         assert engine.context.has_rook_moved('l', 0) is True

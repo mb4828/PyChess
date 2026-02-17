@@ -1,16 +1,16 @@
-"""Unified chess engine API.
+"""Unified state manager for chess game logic.
 
 Wraps game state, context, move validation, and move execution
 into a single interface that any game mode can use.
 """
 from typing import Dict, Tuple
 
-from .game_state import GameState
-from .game_context import GameContext
-from . import move_validator, move_executor, move_utils
+from pychess.state.game_state import GameState
+from pychess.state.game_context import GameContext
+from pychess.state import move_validator, move_executor, move_utils
 
 
-class GameEngine:
+class StateManager:
     """High-level chess engine that manages board state, game context, and move logic."""
 
     def __init__(self) -> None:
@@ -92,8 +92,10 @@ class GameEngine:
 
         is_capture = self.state.is_piece_at(end_x, end_y) or is_en_passant
 
-        move_executor.execute_move(self.state.board, piece_code, start_x, start_y, end_x, end_y, is_en_passant)
-        self._update_castling_rights(piece_code, start_x, start_y, end_x, end_y)
+        move_executor.execute_move(
+            self.state.board, piece_code, start_x, start_y, end_x, end_y, is_en_passant)
+        self._update_castling_rights(
+            piece_code, start_x, start_y, end_x, end_y)
         self._update_en_passant(piece_code, start_x, start_y, end_x, end_y)
 
         is_promotion = False

@@ -1,5 +1,5 @@
 """Tests for logic/move_utils.py"""
-from pychess.engine.move_utils import get_piece_color, is_same_color, is_piece_at, in_bounds, in_bounds_x, in_bounds_y
+from pychess.state.move_utils import get_piece_color, is_same_color, is_piece_at, in_bounds, in_bounds_x, in_bounds_y
 
 
 def empty_board():

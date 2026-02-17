@@ -1,6 +1,6 @@
 """Tests for pawn promotion detection"""
-from pychess.engine.move_validator import get_valid_moves
-from pychess.engine.move_executor import execute_move
+from pychess.state.move_validator import get_valid_moves
+from pychess.state.move_executor import execute_move
 
 
 def empty_board():
