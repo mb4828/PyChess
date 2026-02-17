@@ -114,8 +114,6 @@ class GameManager:
             self._quit_game()
         elif event.type == pygame.KEYDOWN and event.key == pygame.locals.K_ESCAPE and self._app_state == AppState.PLAYER_MOVE:
             self._app_state = AppState.PAUSE
-        elif self._game and self._app_state == AppState.PLAYER_MOVE:
-            self._game.handle_event(event)
         elif event.type == constants.EVENT_WHITE_WINS:
             self._app_state = AppState.GAME_OVER
             self._game_over_menu.set_winner(True)
@@ -127,6 +125,8 @@ class GameManager:
             self._game_over_menu.set_draw()
         elif event.type == constants.EVENT_PROMOTION:
             self._app_state = AppState.PROMOTION
+        elif self._game and self._app_state == AppState.PLAYER_MOVE:
+            self._game.handle_event(event)
 
     def _draw(self, events: list) -> None:
         """Render the current frame based on application state.

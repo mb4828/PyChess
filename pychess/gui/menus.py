@@ -33,7 +33,7 @@ def _draw_overlay(window: pygame.Surface) -> None:
 
 
 def _on_select(sounds: Sounds) -> Callable:
-    """Return an onselect callback that plays the menu-click sound when a widget is selected.
+    """Returns a callback that plays the menu-click sound when a widget is selected.
 
     :param sounds: The Sounds instance to use for playback
     :return: Callable suitable for use as a pygame_menu onselect handler
@@ -44,8 +44,8 @@ def _on_select(sounds: Sounds) -> Callable:
     return _callback
 
 
-def _with_confirm(sounds: Sounds, action: Callable) -> Callable:
-    """Wrap an action callback to play the menu-confirm sound before invoking it.
+def _on_confirm(sounds: Sounds, action: Callable) -> Callable:
+    """Returns a callback to play the menu-confirm sound before invoking it.
 
     :param sounds: The Sounds instance to use for playback
     :param action: The original button action to wrap
@@ -57,29 +57,39 @@ def _with_confirm(sounds: Sounds, action: Callable) -> Callable:
     return _callback
 
 
-def _with_game_over(sounds: Sounds, action: Callable) -> Callable:
-    """Wrap an action callback to play the game-over sound before invoking it.
+class Menu:
+    """Base class for all menus, providing common drawing logic."""
 
-    :param sounds: The Sounds instance to use for playback
-    :param action: The original button action to wrap
-    :return: Wrapped callable
-    """
-    def _callback() -> None:
-        sounds.play_game_over()
-        action()
-    return _callback
+    def __init__(self, sounds: Sounds) -> None:
+        self.menu = pygame_menu.Menu('', 300, 250, theme=MENU_THEME, mouse_motion_selection=True)
+        self._sounds = sounds
+
+    def draw(self, window: pygame.Surface, events: List[pygame.event.Event]) -> None:
+        """Render the menu overlay.
+
+        :param window: The pygame surface to draw on
+        :param events: Current frame's pygame events for menu interaction
+        """
+        _draw_overlay(window)
+        self.menu.update(events)
+        self.menu.draw(window)
+
+    def _add_button(self, label: str, action: Callable, error_color: bool = False) -> None:
+        """Add a button to the menu with the appropriate onselect handler and selection color."""
+        selection_color = _ERROR_COLOR if error_color else self.menu.get_theme().selection_color
+        self.menu.add.button(label, _on_confirm(self._sounds, action),
+                             onselect=_on_select(self._sounds), selection_color=selection_color)
 
 
-class StartMenu:
+class StartMenu(Menu):
     """Main menu shown when the game launches."""
 
     def __init__(self, on_start_press: Callable, on_quit_press: Callable, sounds: Sounds) -> None:
+        super().__init__(sounds)
         self.menu = pygame_menu.Menu('', 300, 250, theme=MENU_THEME, mouse_motion_selection=True)
         self.menu.add.image(get_resource_path(constants.PATH_LOGO), scale=(.6, .6), scale_smooth=True)
-        on_select = _on_select(sounds)
-        self.menu.add.button('Play', _with_confirm(sounds, on_start_press), onselect=on_select)
-        self.menu.add.button('Quit', _with_confirm(sounds, on_quit_press),
-                             onselect=on_select, selection_color=_ERROR_COLOR)
+        self._add_button('Play', on_start_press)
+        self._add_button('Quit', on_quit_press, True)
 
     def draw(self, window: pygame.Surface, events: List[pygame.event.Event]) -> None:
         """Render the start menu with the board background.
@@ -93,57 +103,36 @@ class StartMenu:
         self.menu.draw(window)
 
 
-class PauseMenu:
+class PauseMenu(Menu):
     """Menu shown when the player presses Escape during a game."""
 
     def __init__(self, on_resume_press: Callable, on_resign_press: Callable, sounds: Sounds) -> None:
+        super().__init__(sounds)
         self.menu = pygame_menu.Menu('', 300, 250, theme=MENU_THEME, mouse_motion_selection=True)
-        on_select = _on_select(sounds)
-        self.menu.add.button('Resume', _with_confirm(sounds, on_resume_press), onselect=on_select)
-        self.menu.add.button('Resign', _with_game_over(sounds, on_resign_press),
-                             onselect=on_select, selection_color=_ERROR_COLOR)
-
-    def draw(self, window: pygame.Surface, events: List[pygame.event.Event]) -> None:
-        """Render the pause menu overlay.
-
-        :param window: The pygame surface to draw on
-        :param events: Current frame's pygame events for menu interaction
-        """
-        _draw_overlay(window)
-        self.menu.update(events)
-        self.menu.draw(window)
+        self._add_button('Resume', on_resume_press)
+        self._add_button('Resign', on_resign_press, True)
 
 
-class PromotionMenu:
+class PromotionMenu(Menu):
     """Menu shown when a pawn reaches the promotion rank."""
 
     def __init__(self, on_select: Callable[[str], None], sounds: Sounds) -> None:
+        super().__init__(sounds)
         self.menu = pygame_menu.Menu('', 300, 300, theme=MENU_THEME, mouse_motion_selection=True)
-        on_sel = _on_select(sounds)
         self.menu.add.label('Promote pawn to:')
-        self.menu.add.button('Queen', _with_confirm(sounds, lambda: on_select('q')), onselect=on_sel)
-        self.menu.add.button('Rook', _with_confirm(sounds, lambda: on_select('r')), onselect=on_sel)
-        self.menu.add.button('Bishop', _with_confirm(sounds, lambda: on_select('b')), onselect=on_sel)
-        self.menu.add.button('Knight', _with_confirm(sounds, lambda: on_select('n')), onselect=on_sel)
-
-    def draw(self, window: pygame.Surface, events: List[pygame.event.Event]) -> None:
-        """Render the promotion selection menu overlay.
-
-        :param window: The pygame surface to draw on
-        :param events: Current frame's pygame events for menu interaction
-        """
-        _draw_overlay(window)
-        self.menu.update(events)
-        self.menu.draw(window)
+        self._add_button('Queen', lambda: on_select('q'))
+        self._add_button('Rook', lambda: on_select('r'))
+        self._add_button('Bishop', lambda: on_select('b'))
+        self._add_button('Knight', lambda: on_select('n'))
 
 
-class GameOverMenu:
+class GameOverMenu(Menu):
     """Menu shown when the game ends (checkmate or stalemate)."""
 
     def __init__(self, on_exit_press: Callable, sounds: Sounds) -> None:
+        super().__init__(sounds)
         self.menu = pygame_menu.Menu('', 300, 250, theme=MENU_THEME, mouse_motion_selection=True)
-        self._on_exit_press = _with_confirm(sounds, on_exit_press)
-        self._on_select = _on_select(sounds)
+        self._on_exit_press = on_exit_press
 
     def set_winner(self, white_wins: bool) -> None:
         """Configure the menu to display the winner.
@@ -152,22 +141,10 @@ class GameOverMenu:
         """
         self.menu.clear()
         self.menu.add.label('White wins' if white_wins else 'Black wins')
-        self.menu.add.button('Exit', self._on_exit_press,
-                             onselect=self._on_select)
+        self._add_button('Exit', self._on_exit_press)
 
     def set_draw(self) -> None:
         """Configure the menu to display a stalemate draw."""
         self.menu.clear()
         self.menu.add.label('Draw - Stalemate')
-        self.menu.add.button('Exit', self._on_exit_press,
-                             onselect=self._on_select)
-
-    def draw(self, window: pygame.Surface, events: List[pygame.event.Event]) -> None:
-        """Render the game over menu overlay.
-
-        :param window: The pygame surface to draw on
-        :param events: Current frame's pygame events for menu interaction
-        """
-        _draw_overlay(window)
-        self.menu.update(events)
-        self.menu.draw(window)
+        self._add_button('Exit', self._on_exit_press)
