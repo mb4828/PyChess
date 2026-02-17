@@ -5,6 +5,7 @@ from typing import Dict, Optional
 import pygame
 
 from pychess import constants
+from pychess.state.piece import Piece
 from .gui_utils import get_resource_path
 
 
@@ -24,18 +25,18 @@ class Sprites:
         self.game_window: pygame.Surface = game_window
 
         self._sprites: Dict[str, pygame.Surface] = {
-            'kl': _load_sprite(constants.PATH_KL),
-            'kd': _load_sprite(constants.PATH_KD),
-            'ql': _load_sprite(constants.PATH_QL),
-            'qd': _load_sprite(constants.PATH_QD),
-            'bl': _load_sprite(constants.PATH_BL),
-            'bd': _load_sprite(constants.PATH_BD),
-            'nl': _load_sprite(constants.PATH_NL),
-            'nd': _load_sprite(constants.PATH_ND),
-            'rl': _load_sprite(constants.PATH_RL),
-            'rd': _load_sprite(constants.PATH_RD),
-            'pl': _load_sprite(constants.PATH_PL),
-            'pd': _load_sprite(constants.PATH_PD),
+            Piece.KL: _load_sprite(constants.PATH_KL),
+            Piece.KD: _load_sprite(constants.PATH_KD),
+            Piece.QL: _load_sprite(constants.PATH_QL),
+            Piece.QD: _load_sprite(constants.PATH_QD),
+            Piece.BL: _load_sprite(constants.PATH_BL),
+            Piece.BD: _load_sprite(constants.PATH_BD),
+            Piece.NL: _load_sprite(constants.PATH_NL),
+            Piece.ND: _load_sprite(constants.PATH_ND),
+            Piece.RL: _load_sprite(constants.PATH_RL),
+            Piece.RD: _load_sprite(constants.PATH_RD),
+            Piece.PL: _load_sprite(constants.PATH_PL),
+            Piece.PD: _load_sprite(constants.PATH_PD),
         }
 
     def scale_sprite(self, sprite: pygame.Surface, width: float, height: float) -> pygame.Surface:

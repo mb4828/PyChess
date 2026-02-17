@@ -14,10 +14,18 @@ class StateManager:
     """High-level chess engine that manages board state, game context, and move logic."""
 
     def __init__(self) -> None:
-        self.state: GameState = GameState()
-        self.context: GameContext = GameContext()
+        self._state: GameState = GameState()
+        self._context: GameContext = GameContext()
 
     # ==== Board Access ==== #
+
+    def get_state(self) -> GameState:
+        """Get the current game state (board configuration)."""
+        return self._state
+
+    def get_context(self) -> GameContext:
+        """Get the current game context (turn, castling rights, en passant target)."""
+        return self._context
 
     def get_piece(self, x: int, y: int) -> str:
         """Get the piece code at position (x, y).
@@ -26,7 +34,7 @@ class StateManager:
         :param y: Column index
         :return: Piece code string, or '' if empty
         """
-        return self.state.get_piece(x, y)
+        return self._state.get_piece(x, y)
 
     def is_piece_at(self, x: int, y: int) -> bool:
         """Check if a piece exists at position (x, y).
@@ -35,17 +43,17 @@ class StateManager:
         :param y: Column index
         :return: True if a piece occupies the square
         """
-        return self.state.is_piece_at(x, y)
+        return self._state.is_piece_at(x, y)
 
     # ==== Turn Management ==== #
 
     def current_color(self) -> str:
         """Return the color whose turn it is ('l' or 'd')."""
-        return self.context.current_color()
+        return self._context.current_color()
 
     def switch_turn(self) -> None:
         """Switch to the other player's turn."""
-        self.context.switch_turn()
+        self._context.switch_turn()
 
     def is_turn(self, piece_code: str) -> bool:
         """Check if it's the turn of the player who owns this piece.
@@ -53,7 +61,7 @@ class StateManager:
         :param piece_code: Piece code (e.g. 'pl')
         :return: True if the piece belongs to the current player
         """
-        return self.context.is_turn(piece_code)
+        return self._context.is_turn(piece_code)
 
     # ==== Move Validation ==== #
 
@@ -67,9 +75,7 @@ class StateManager:
         :param y: Column the piece was picked up from
         :return: List of (row, col) tuples the piece can legally move to
         """
-        return move_validator.get_valid_moves(
-            self.state.board, piece_code, x, y,
-            game_context=self.context.to_dict())
+        return move_validator.get_valid_moves(self._state, self._context, piece_code, x, y)
 
     # ==== Move Execution ==== #
 
@@ -88,12 +94,12 @@ class StateManager:
         """
         # Pawn diagonal to empty square means en passant
         is_en_passant = (piece_code.startswith('p') and start_y != end_y
-                         and not self.state.is_piece_at(end_x, end_y))
+                         and not self._state.is_piece_at(end_x, end_y))
 
-        is_capture = self.state.is_piece_at(end_x, end_y) or is_en_passant
+        is_capture = self._state.is_piece_at(end_x, end_y) or is_en_passant
 
         move_executor.execute_move(
-            self.state.board, piece_code, start_x, start_y, end_x, end_y, is_en_passant)
+            self._state, piece_code, start_x, start_y, end_x, end_y, is_en_passant)
         self._update_castling_rights(
             piece_code, start_x, start_y, end_x, end_y)
         self._update_en_passant(piece_code, start_x, start_y, end_x, end_y)
@@ -120,8 +126,8 @@ class StateManager:
         :param y: Column of the pawn
         :param piece_type: Target piece type ('q', 'r', 'b', or 'n')
         """
-        color = move_utils.get_piece_color(self.state.get_piece(x, y))
-        self.state.set_piece(x, y, piece_type + color)
+        color = move_utils.get_piece_color(self._state.get_piece(x, y))
+        self._state.set_piece(x, y, piece_type + color)
 
     # ==== Game State Checks ==== #
 
@@ -131,7 +137,7 @@ class StateManager:
         :param color: 'l' for light or 'd' for dark
         :return: True if the king is in check
         """
-        return move_validator.is_in_check(self.state.board, color)
+        return move_validator.is_in_check(self._state, color)
 
     def is_in_checkmate(self, color: str) -> bool:
         """Check if the given color is in checkmate.
@@ -139,7 +145,7 @@ class StateManager:
         :param color: 'l' for light or 'd' for dark
         :return: True if the player is in checkmate
         """
-        return move_validator.is_in_checkmate(self.state.board, color)
+        return move_validator.is_in_checkmate(self._state, color)
 
     def is_in_stalemate(self, color: str) -> bool:
         """Check if the given color is in stalemate.
@@ -147,7 +153,7 @@ class StateManager:
         :param color: 'l' for light or 'd' for dark
         :return: True if the player is in stalemate
         """
-        return move_validator.is_in_stalemate(self.state.board, color)
+        return move_validator.is_in_stalemate(self._state, color)
 
     # ==== Private Helpers ==== #
 
@@ -158,18 +164,18 @@ class StateManager:
         color = move_utils.get_piece_color(piece_code)
 
         if piece_code.startswith('k'):
-            self.context.mark_king_moved(color)
+            self._context.mark_king_moved(color)
 
         if piece_code.startswith('r'):
             if start_y == 0:
-                self.context.mark_rook_moved(color, 0)
+                self._context.mark_rook_moved(color, 0)
             elif start_y == 7:
-                self.context.mark_rook_moved(color, 7)
+                self._context.mark_rook_moved(color, 7)
 
         # A capture on a rook's home square also revokes that rook's castling rights
         if end_x in (0, 7) and end_y in (0, 7):
             target_color = 'l' if end_x == 7 else 'd'
-            self.context.mark_rook_moved(target_color, end_y)
+            self._context.mark_rook_moved(target_color, end_y)
 
     def _update_en_passant(  # pylint: disable=unused-argument
         self, piece_code: str, start_x: int, start_y: int, end_x: int, end_y: int,
@@ -177,6 +183,6 @@ class StateManager:
         """Update en passant target based on the move just made."""
         if piece_code.startswith('p') and abs(end_x - start_x) == 2:
             ep_x = (start_x + end_x) // 2
-            self.context.set_en_passant_target((ep_x, end_y))
+            self._context.set_en_passant_target((ep_x, end_y))
         else:
-            self.context.set_en_passant_target(None)
+            self._context.set_en_passant_target(None)

@@ -6,6 +6,7 @@ import pygame
 
 from pychess import constants
 from pychess.gui.sounds import Sounds
+from pychess.state.game_state import GameState
 
 
 def _make_gui():
@@ -30,7 +31,7 @@ class TestDrawPiece:
         mock_sprite = MagicMock()
         sq = constants.SQ_HEIGHT
 
-        with patch.object(gui.sprites, 'get_sprite_from_code', return_value=mock_sprite):
+        with patch.object(gui._sprites, 'get_sprite_from_code', return_value=mock_sprite):
             gui.draw_piece('pl', 3, 5)
             window.blit.assert_called_once_with(mock_sprite, (sq * 5, sq * 3))
 
@@ -39,7 +40,7 @@ class TestDrawPiece:
         gui, window = _make_gui()
         mock_sprite = MagicMock()
 
-        with patch.object(gui.sprites, 'get_sprite_from_code', return_value=mock_sprite):
+        with patch.object(gui._sprites, 'get_sprite_from_code', return_value=mock_sprite):
             gui.draw_piece('kl', 0, 0)
             window.blit.assert_called_once_with(mock_sprite, (0, 0))
 
@@ -47,7 +48,7 @@ class TestDrawPiece:
         """draw_piece with an unknown code should not blit anything."""
         gui, window = _make_gui()
 
-        with patch.object(gui.sprites, 'get_sprite_from_code', return_value=None):
+        with patch.object(gui._sprites, 'get_sprite_from_code', return_value=None):
             gui.draw_piece('xx', 0, 0)
             window.blit.assert_not_called()
 
@@ -61,7 +62,7 @@ class TestDrawDraggedPiece:
         mock_sprite = MagicMock()
         expected_scale = floor(constants.SQ_HEIGHT * 1.1)
 
-        with patch.object(gui.sprites, 'get_sprite_from_code', return_value=mock_sprite) as mock_get:
+        with patch.object(gui._sprites, 'get_sprite_from_code', return_value=mock_sprite) as mock_get:
             gui.draw_dragged_piece('pl', (200, 300), (3, 3), (4, 4))
             mock_get.assert_called_once_with(
                 'pl', expected_scale, expected_scale)
@@ -73,7 +74,7 @@ class TestDrawDraggedPiece:
         scale = floor(constants.SQ_HEIGHT * 1.1)
         cursor_x, cursor_y = 200, 300
 
-        with patch.object(gui.sprites, 'get_sprite_from_code', return_value=mock_sprite):
+        with patch.object(gui._sprites, 'get_sprite_from_code', return_value=mock_sprite):
             gui.draw_dragged_piece('pl', (cursor_x, cursor_y), (3, 3), (4, 4))
             # blit uses (y - scale/2, x - scale/2) where cursor_pos is (x, y)
             window.blit.assert_called_once_with(
@@ -85,7 +86,7 @@ class TestDrawDraggedPiece:
         mock_sprite = MagicMock()
         sq = constants.SQ_HEIGHT
 
-        with patch.object(gui.sprites, 'get_sprite_from_code', return_value=mock_sprite) as mock_get:
+        with patch.object(gui._sprites, 'get_sprite_from_code', return_value=mock_sprite) as mock_get:
             gui.draw_dragged_piece('pl', (225, 225), (3, 3), (3, 3))
             mock_get.assert_called_once_with('pl', sq, sq)
 
@@ -95,7 +96,7 @@ class TestDrawDraggedPiece:
         mock_sprite = MagicMock()
         sq = constants.SQ_HEIGHT
 
-        with patch.object(gui.sprites, 'get_sprite_from_code', return_value=mock_sprite):
+        with patch.object(gui._sprites, 'get_sprite_from_code', return_value=mock_sprite):
             gui.draw_dragged_piece('pl', (225, 225), (2, 5), (2, 5))
             # start_sq is (row=2, col=5), blit at (col*sq, row*sq) = (5*sq, 2*sq)
             window.blit.assert_called_once_with(mock_sprite, (5 * sq, 2 * sq))
@@ -107,10 +108,10 @@ class TestDrawPieces:
     def test_draws_all_pieces_on_board(self):
         """draw_pieces should call draw_piece for every non-empty square."""
         gui, _ = _make_gui()
-        board = [['' for _ in range(8)] for _ in range(8)]
-        board[0][0] = 'rd'
-        board[7][4] = 'kl'
-        board[6][3] = 'pl'
+        board = GameState.empty()
+        board.set_piece(0, 0, 'rd')
+        board.set_piece(7, 4, 'kl')
+        board.set_piece(6, 3, 'pl')
 
         with patch.object(gui, 'draw_piece') as mock_draw:
             gui.draw_pieces(board, 8, 8)
@@ -122,7 +123,7 @@ class TestDrawPieces:
     def test_skips_empty_squares(self):
         """draw_pieces should not call draw_piece for empty squares."""
         gui, _ = _make_gui()
-        board = [['' for _ in range(8)] for _ in range(8)]
+        board = GameState.empty()
 
         with patch.object(gui, 'draw_piece') as mock_draw:
             gui.draw_pieces(board, 8, 8)
@@ -193,7 +194,7 @@ class TestDrawSquareHighlight:
         with patch('pychess.gui_manager.draw_solid_rect') as mock_rect:
             gui.draw_square_highlight(3, 5)
             mock_rect.assert_called_once_with(
-                gui.window, sq, sq,
+                gui._window, sq, sq,
                 sq * 3, sq * 5,
                 constants.SQ_HIGHLIGHT_COLOR, constants.SQ_HIGHLIGHT_ALPHA,
             )
@@ -210,7 +211,7 @@ class TestDrawMoveHint:
         with patch('pychess.gui_manager.draw_solid_circle') as mock_circle:
             gui.draw_move_hint(2, 6)
             mock_circle.assert_called_once_with(
-                gui.window, sq, sq,
+                gui._window, sq, sq,
                 sq / 7,
                 sq * 2, sq * 6,
                 constants.SQ_HINT_COLOR, constants.SQ_HINT_ALPHA,

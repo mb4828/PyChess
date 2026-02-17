@@ -38,12 +38,11 @@ class Game:
                                                          constants.SQ_HEIGHT)
         piece = self.state.get_piece(sqx, sqy)
         if piece and self.state.is_turn(piece):
-            self.state.state.clear_square(sqx, sqy)
+            self.state.get_state().clear_square(sqx, sqy)
             self.drag_piece = piece
             self.drag_piece_start_sq = (sqx, sqy)
             self.drag_piece_cursor_sq = (sqx, sqy)
-            self.drag_piece_valid_moves = self.state.get_valid_moves(
-                self.drag_piece, sqx, sqy)
+            self.drag_piece_valid_moves = self.state.get_valid_moves(self.drag_piece, sqx, sqy)
 
     def drag_continue(self, x: int, y: int) -> None:
         """Update the drag position as the cursor moves.
@@ -94,7 +93,7 @@ class Game:
     def _return_piece_to_start(self) -> None:
         """Place the dragged piece back on its starting square."""
         sqx, sqy = self.drag_piece_start_sq
-        self.state.state.set_piece(sqx, sqy, self.drag_piece)
+        self.state.get_state().set_piece(sqx, sqy, self.drag_piece)
 
     def complete_promotion(self, piece_type: str) -> None:
         """Handle pawn promotion after the player selects a piece type.
@@ -138,8 +137,7 @@ class Game:
     def draw(self) -> None:
         """Render the board, pieces, and overlays for the current frame."""
         self.gui.draw_board()
-        self.gui.draw_pieces(self.state.state.board,
-                             constants.BOARD_WIDTH, constants.BOARD_HEIGHT)
+        self.gui.draw_pieces(self.state.get_state(), constants.BOARD_WIDTH, constants.BOARD_HEIGHT)
         self.gui.draw_overlays(
             self.drag_piece, self.drag_piece_start_sq,
             self.drag_piece_cursor_sq, self.drag_piece_cursor_pos,

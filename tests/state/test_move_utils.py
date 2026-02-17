@@ -1,9 +1,10 @@
 """Tests for logic/move_utils.py"""
+from pychess.state.game_state import GameState
 from pychess.state.move_utils import get_piece_color, is_same_color, is_piece_at, in_bounds, in_bounds_x, in_bounds_y
 
 
-def empty_board():
-    return [['' for _ in range(8)] for _ in range(8)]
+def empty_board() -> GameState:
+    return GameState.empty()
 
 
 class TestGetPieceColor:
@@ -53,12 +54,12 @@ class TestIsPieceAt:
 
     def test_piece_present(self):
         board = empty_board()
-        board[3][3] = 'pl'
+        board.set_piece(3, 3, 'pl')
         assert is_piece_at(board, 3, 3) is True
 
     def test_en_passant_marker(self):
         board = empty_board()
-        board[3][3] = '+ep'
+        board.set_piece(3, 3, '+ep')
         assert is_piece_at(board, 3, 3) is False
 
 

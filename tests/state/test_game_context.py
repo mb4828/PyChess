@@ -63,15 +63,3 @@ class TestTurnManagement:
         ctx.switch_turn()
         assert ctx.is_turn('pl') is False
         assert ctx.is_turn('pd') is True
-
-
-class TestToDict:
-    def test_to_dict_structure(self):
-        ctx = GameContext()
-        ctx.mark_king_moved('l')
-        ctx.set_en_passant_target((2, 3))
-        d = ctx.to_dict()
-        assert d['king_moved']['l'] is True
-        assert d['king_moved']['d'] is False
-        assert d['rook_moved']['l'][0] is False
-        assert d['en_passant_target'] == (2, 3)

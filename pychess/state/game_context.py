@@ -81,16 +81,3 @@ class GameContext:
         """
         color = get_piece_color(piece_code)
         return (self.is_light_turn and color == 'l') or (not self.is_light_turn and color == 'd')
-
-    # ==== Serialization ==== #
-
-    def to_dict(self) -> dict:
-        """Build the context dict that move_validator expects.
-
-        :return: Dict with 'king_moved', 'rook_moved', and 'en_passant_target'
-        """
-        return {
-            'king_moved': self.king_moved,
-            'rook_moved': self.rook_moved,
-            'en_passant_target': self.en_passant_target,
-        }

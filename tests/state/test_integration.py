@@ -1,4 +1,5 @@
 """Integration tests that simulate multi-move games to verify state consistency."""
+from pychess.state.game_state import GameState
 from pychess.state_manager import StateManager
 from pychess.state.move_validator import is_in_check, is_in_checkmate, is_in_stalemate
 
@@ -6,9 +7,9 @@ from pychess.state.move_validator import is_in_check, is_in_checkmate, is_in_sta
 def setup_engine(pieces):
     """Create an engine with an empty board and place pieces."""
     engine = StateManager()
-    engine.state.board = [['' for _ in range(8)] for _ in range(8)]
+    engine.get_state().board = [['' for _ in range(8)] for _ in range(8)]
     for x, y, code in pieces:
-        engine.state.set_piece(x, y, code)
+        engine.get_state().set_piece(x, y, code)
     return engine
 
 
@@ -18,7 +19,7 @@ def simulate_drag_move(engine, piece, start_x, start_y, end_x, end_y):
     Returns (result_dict, valid_moves_list).
     Asserts the destination is in the valid moves list.
     """
-    engine.state.clear_square(start_x, start_y)
+    engine.get_state().clear_square(start_x, start_y)
     valid_moves = engine.get_valid_moves(piece, start_x, start_y)
     assert (end_x, end_y) in valid_moves, (
         f"{piece} at ({start_x},{start_y}) cannot reach ({end_x},{end_y}). "
@@ -33,9 +34,9 @@ def get_drag_valid_moves(engine, x, y):
     """Simulate picking up a piece and getting its valid moves, then put it back."""
     piece = engine.get_piece(x, y)
     assert piece, f"No piece at ({x},{y})"
-    engine.state.clear_square(x, y)
+    engine.get_state().clear_square(x, y)
     moves = engine.get_valid_moves(piece, x, y)
-    engine.state.set_piece(x, y, piece)
+    engine.get_state().set_piece(x, y, piece)
     return moves
 
 
@@ -310,12 +311,12 @@ class TestCheckmateDetectionAfterMultipleMoves:
         assert result['is_capture'] is True
 
         # Now it's dark's turn - should be checkmate
-        assert is_in_check(engine.state.board,
+        assert is_in_check(engine.get_state(),
                            'd') is True, "Dark king should be in check"
         assert is_in_checkmate(
-            engine.state.board, 'd') is True, "This should be checkmate"
+            engine.get_state(), 'd') is True, "This should be checkmate"
         assert not is_in_stalemate(
-            engine.state.board, 'd'), "This is not stalemate"
+            engine.get_state(), 'd'), "This is not stalemate"
 
     def test_fools_mate(self):
         """Fool's mate: 1. f3 e5 2. g4?? Qh4#"""
@@ -330,10 +331,10 @@ class TestCheckmateDetectionAfterMultipleMoves:
         simulate_drag_move(engine, 'qd', 0, 3, 4, 7)
 
         # Light should be in checkmate
-        assert is_in_check(engine.state.board,
+        assert is_in_check(engine.get_state(),
                            'l') is True, "Light king should be in check"
         assert is_in_checkmate(
-            engine.state.board, 'l') is True, "This should be checkmate"
+            engine.get_state(), 'l') is True, "This should be checkmate"
 
     def test_back_rank_mate_after_sequence(self):
         """Set up a back rank mate position: rook delivers mate along the back rank."""
@@ -343,14 +344,14 @@ class TestCheckmateDetectionAfterMultipleMoves:
             (0, 0, 'kd'), (7, 0, 'rd'),  # dark rook already on a1 (back rank)
         ])
         # Dark's turn — rook is already on the back rank, light king is trapped
-        engine.context.is_light_turn = False
+        engine.get_context().is_light_turn = False
 
         # Verify the position: light king on g1 hemmed in by own pawns on f2/g2/h2
         # Dark rook on a1 controls the entire 1st rank
         assert is_in_check(
-            engine.state.board, 'l') is True, "Light king should be in check from rook on a1"
+            engine.get_state(), 'l') is True, "Light king should be in check from rook on a1"
         assert is_in_checkmate(
-            engine.state.board, 'l') is True, "This should be back rank checkmate"
+            engine.get_state(), 'l') is True, "This should be back rank checkmate"
 
 
 class TestBoardStateConsistency:
@@ -362,7 +363,7 @@ class TestBoardStateConsistency:
 
         def count_pieces():
             count = 0
-            for row in engine.state.board:
+            for row in engine.get_state().board:
                 for cell in row:
                     if cell:
                         count += 1
@@ -395,7 +396,7 @@ class TestBoardStateConsistency:
         result, _ = simulate_drag_move(engine, 'pl', 4, 4, 3, 3)
         assert result['is_capture'] is True
 
-        count = sum(1 for row in engine.state.board for cell in row if cell)
+        count = sum(1 for row in engine.get_state().board for cell in row if cell)
         assert count == 31, f"After 1 capture, should have 31 pieces, got {count}"
 
     def test_no_ghost_pieces_after_castling(self):
@@ -414,9 +415,9 @@ class TestBoardStateConsistency:
 
         # Count kings and rooks
         kings = sum(
-            1 for row in engine.state.board for c in row if c.startswith('k') if c)
+            1 for row in engine.get_state().board for c in row if c.startswith('k') if c)
         rooks = sum(
-            1 for row in engine.state.board for c in row if c.startswith('r') if c)
+            1 for row in engine.get_state().board for c in row if c.startswith('r') if c)
         assert kings == 2, f"Should have exactly 2 kings, got {kings}"
 
     def test_checkmate_stalemate_dont_corrupt_board(self):
@@ -430,15 +431,15 @@ class TestBoardStateConsistency:
 
         # Snapshot the board
         import copy
-        board_before = copy.deepcopy(engine.state.board)
+        board_before = copy.deepcopy(engine.get_state().board)
 
         # Call checkmate and stalemate detection (these iterate the board)
-        is_in_checkmate(engine.state.board, 'd')
-        is_in_stalemate(engine.state.board, 'd')
-        is_in_check(engine.state.board, 'd')
+        is_in_checkmate(engine.get_state(), 'd')
+        is_in_stalemate(engine.get_state(), 'd')
+        is_in_check(engine.get_state(), 'd')
 
         # Board should be unchanged
-        assert engine.state.board == board_before, "Check/checkmate/stalemate detection mutated the board!"
+        assert engine.get_state().board == board_before, "Check/checkmate/stalemate detection mutated the board!"
 
     def test_valid_moves_dont_corrupt_board(self):
         """Getting valid moves for a piece should not mutate the board."""
@@ -448,18 +449,18 @@ class TestBoardStateConsistency:
         simulate_drag_move(engine, 'pd', 1, 4, 3, 4)
 
         import copy
-        board_before = copy.deepcopy(engine.state.board)
+        board_before = copy.deepcopy(engine.get_state().board)
 
         # Get valid moves for several pieces (simulating drag_start behavior)
         for x in range(8):
             for y in range(8):
                 piece = engine.get_piece(x, y)
                 if piece:
-                    engine.state.clear_square(x, y)
+                    engine.get_state().clear_square(x, y)
                     engine.get_valid_moves(piece, x, y)
-                    engine.state.set_piece(x, y, piece)
+                    engine.get_state().set_piece(x, y, piece)
 
-        assert engine.state.board == board_before, "Getting valid moves mutated the board!"
+        assert engine.get_state().board == board_before, "Getting valid moves mutated the board!"
 
 
 class TestEnPassantMultiMove:
@@ -483,7 +484,7 @@ class TestEnPassantMultiMove:
         simulate_drag_move(engine, 'pd', 1, 3, 3, 3)
 
         # En passant target should be set
-        assert engine.context.get_en_passant_target() == (2, 3)
+        assert engine.get_context().get_en_passant_target() == (2, 3)
 
         # Light pawn on e5 (3,4) should be able to capture en passant on d6 (2,3)
         e5_moves = get_drag_valid_moves(engine, 3, 4)
@@ -500,10 +501,10 @@ class TestEnPassantMultiMove:
         simulate_drag_move(engine, 'pd', 1, 3, 3, 3)
 
         # En passant is available now
-        assert engine.context.get_en_passant_target() == (2, 3)
+        assert engine.get_context().get_en_passant_target() == (2, 3)
 
         # White plays something else
         simulate_drag_move(engine, 'nl', 7, 6, 5, 5)
 
         # En passant should no longer be available
-        assert engine.context.get_en_passant_target() is None
+        assert engine.get_context().get_en_passant_target() is None

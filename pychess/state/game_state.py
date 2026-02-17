@@ -2,7 +2,7 @@
 from copy import deepcopy
 from typing import List, Optional
 
-from .move_utils import is_piece_at as _is_piece_at
+from .piece import Piece
 
 
 class GameState:
@@ -44,7 +44,8 @@ class GameState:
         :param y: Column index
         :return: True if a piece occupies the square
         """
-        return _is_piece_at(self.board, x, y)
+        code = self.board[x][y]
+        return bool(code) and not code.startswith('+')
 
     def copy(self) -> 'GameState':
         """Create a deep copy of this game state.
@@ -68,12 +69,12 @@ class GameState:
         :return: 8x8 list of piece code strings
         """
         return [
-            ['rd', 'nd', 'bd', 'qd', 'kd', 'bd', 'nd', 'rd'],
-            ['pd', 'pd', 'pd', 'pd', 'pd', 'pd', 'pd', 'pd'],
+            [Piece.RD, Piece.ND, Piece.BD, Piece.QD, Piece.KD, Piece.BD, Piece.ND, Piece.RD],
+            [Piece.PD, Piece.PD, Piece.PD, Piece.PD, Piece.PD, Piece.PD, Piece.PD, Piece.PD],
             ['', '', '', '', '', '', '', ''],
             ['', '', '', '', '', '', '', ''],
             ['', '', '', '', '', '', '', ''],
             ['', '', '', '', '', '', '', ''],
-            ['pl', 'pl', 'pl', 'pl', 'pl', 'pl', 'pl', 'pl'],
-            ['rl', 'nl', 'bl', 'ql', 'kl', 'bl', 'nl', 'rl'],
+            [Piece.PL, Piece.PL, Piece.PL, Piece.PL, Piece.PL, Piece.PL, Piece.PL, Piece.PL],
+            [Piece.RL, Piece.NL, Piece.BL, Piece.QL, Piece.KL, Piece.BL, Piece.NL, Piece.RL],
         ]

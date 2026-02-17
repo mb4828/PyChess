@@ -1,7 +1,12 @@
 """Utility functions for move logic."""
-from typing import List
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
 
 from pychess import constants
+
+if TYPE_CHECKING:
+    from .game_state import GameState
 
 
 def get_piece_color(piece_code: str) -> str:
@@ -25,16 +30,17 @@ def is_same_color(piece_code_a: str, piece_code_b: str) -> bool:
     return get_piece_color(piece_code_a) == get_piece_color(piece_code_b)
 
 
-def is_piece_at(game_state: List[List[str]], x: int, y: int) -> bool:
+def is_piece_at(game_state: GameState, x: int, y: int) -> bool:
     """Check if a piece exists at position (x, y) on the board.
 
-    :param game_state: 2-dimensional list representing the board
+    :param game_state: GameState representing the board
     :param x: Row index
     :param y: Column index
     :return: True if a piece occupies the square
     """
+    code = game_state.get_piece(x, y)
     # '+' prefix is reserved for non-piece markers (e.g. en passant targets)
-    return bool(game_state[x][y]) and not game_state[x][y].startswith('+')
+    return bool(code) and not code.startswith('+')
 
 
 def in_bounds_x(x: int) -> bool:

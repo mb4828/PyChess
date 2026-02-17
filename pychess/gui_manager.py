@@ -8,21 +8,22 @@ from pychess import constants
 from pychess.gui.gui_utils import draw_board as _draw_board, draw_solid_rect, draw_solid_circle
 from pychess.gui.sprites import Sprites
 from pychess.gui.sounds import Sounds
+from pychess.state.game_state import GameState
 
 
 class GUIManager:
     """Facade for all rendering and audio operations."""
 
     def __init__(self, window: pygame.Surface, sounds: Sounds) -> None:
-        self.window: pygame.Surface = window
-        self.sprites: Sprites = Sprites(window)
+        self._window: pygame.Surface = window
+        self._sprites: Sprites = Sprites(window)
         self.sounds: Sounds = sounds
 
     # ==== Board Rendering ==== #
 
     def draw_board(self) -> None:
         """Draw the chess board background (alternating light/dark squares)."""
-        _draw_board(self.window)
+        _draw_board(self._window)
 
     def draw_piece(self, piece_code: str, x: int, y: int) -> None:
         """Draw a piece at board square (x, y).
@@ -31,11 +32,11 @@ class GUIManager:
         :param x: Row index
         :param y: Column index
         """
-        source = self.sprites.get_sprite_from_code(
+        source = self._sprites.get_sprite_from_code(
             piece_code, constants.SQ_HEIGHT, constants.SQ_HEIGHT)
         dest = (constants.SQ_HEIGHT * y, constants.SQ_HEIGHT * x)
         if source and dest:
-            self.window.blit(source, dest)
+            self._window.blit(source, dest)
 
     def draw_dragged_piece(
         self, piece_code: str, cursor_pos: Tuple[int, int], start_sq: Tuple[int, int], cursor_sq: Tuple[int, int],
@@ -50,15 +51,15 @@ class GUIManager:
         if start_sq != cursor_sq:
             scale = floor(constants.SQ_HEIGHT * 1.1)
             x, y = cursor_pos
-            surface = self.sprites.get_sprite_from_code(
+            surface = self._sprites.get_sprite_from_code(
                 piece_code, scale, scale)
-            self.window.blit(surface, (y - scale / 2, x - scale / 2))
+            self._window.blit(surface, (y - scale / 2, x - scale / 2))
         else:
             scale = constants.SQ_HEIGHT
             x, y = start_sq[0] * scale, start_sq[1] * scale
-            surface = self.sprites.get_sprite_from_code(
+            surface = self._sprites.get_sprite_from_code(
                 piece_code, scale, scale)
-            self.window.blit(surface, (y, x))
+            self._window.blit(surface, (y, x))
 
     # ==== Overlays ==== #
 
@@ -69,7 +70,7 @@ class GUIManager:
         :param y: Column index
         """
         draw_solid_rect(
-            self.window, constants.SQ_HEIGHT, constants.SQ_HEIGHT,
+            self._window, constants.SQ_HEIGHT, constants.SQ_HEIGHT,
             constants.SQ_HEIGHT * x, constants.SQ_HEIGHT * y,
             constants.SQ_HIGHLIGHT_COLOR, constants.SQ_HIGHLIGHT_ALPHA,
         )
@@ -81,7 +82,7 @@ class GUIManager:
         :param y: Column index
         """
         draw_solid_circle(
-            self.window, constants.SQ_HEIGHT, constants.SQ_HEIGHT,
+            self._window, constants.SQ_HEIGHT, constants.SQ_HEIGHT,
             constants.SQ_HEIGHT / 7,
             constants.SQ_HEIGHT * x, constants.SQ_HEIGHT * y,
             constants.SQ_HINT_COLOR, constants.SQ_HINT_ALPHA,
@@ -89,16 +90,16 @@ class GUIManager:
 
     # ==== Composite Drawing ==== #
 
-    def draw_pieces(self, board: List[List[str]], board_width: int, board_height: int) -> None:
+    def draw_pieces(self, game_state: GameState, board_width: int, board_height: int) -> None:
         """Draw all pieces currently on the board.
 
-        :param board: 2-dimensional list representing the board
+        :param game_state: GameState representing the board
         :param board_width: Number of columns
         :param board_height: Number of rows
         """
         for x in range(board_width):
             for y in range(board_height):
-                code = board[x][y]
+                code = game_state.get_piece(x, y)
                 if code:
                     self.draw_piece(code, x, y)
 
