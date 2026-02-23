@@ -31,7 +31,8 @@ SQ_HINT_ALPHA = 127
 
 # ==== Image Asset Paths ==== #
 
-PATH_LOGO = 'assets/images/pgchess.png'
+PATH_LOGO = 'assets/images/pgchess-full.png'
+PATH_ICON = 'assets/images/pgchess.png'
 PATH_KL = 'assets/images/white_king.png'
 PATH_KD = 'assets/images/black_king.png'
 PATH_QL = 'assets/images/white_queen.png'

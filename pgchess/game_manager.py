@@ -65,9 +65,9 @@ class GameManager:
         Called once from ``__init__`` before the main loop starts.
         """
         self._window = pygame.display.set_mode((constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT))
-        pygame.display.set_caption(f'PGChess v{constants.VERSION}')
+        pygame.display.set_caption('PGChess')
         pygame.display.set_icon(
-            pygame.image.load(get_resource_path(constants.PATH_KL)))
+            pygame.image.load(get_resource_path(constants.PATH_ICON)))
 
     def _init_menus(self) -> None:
         """Instantiate all menu objects and wire their callbacks.

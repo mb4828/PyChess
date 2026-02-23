@@ -34,8 +34,6 @@ def build_windows() -> None:
         '--onefile',
         'main.py',
         '--paths', 'venv/Lib/site-packages',
-        '--paths', 'game/',
-        '--paths', 'logic/',
         '--add-data', 'assets/images/*;assets/images',
         '--add-data', 'assets/sounds/*;assets/sounds',
         '--add-data', 'venv/Lib/site-packages/pygame_menu/resources/fonts/*;pygame_menu/resources/fonts',
@@ -55,17 +53,15 @@ def build_macos() -> None:
         '--windowed',
         'main.py',
         '--paths', 'venv/lib/python3.11/site-packages',
-        '--paths', 'game/',
-        '--paths', 'logic/',
         '--add-data', 'assets/images/*:assets/images',
         '--add-data', 'assets/sounds/*:assets/sounds',
         '--add-data', 'venv/lib/python3.11/site-packages/pygame_menu/resources/fonts/*:pygame_menu/resources/fonts',
         '--name', 'PGChess',
-        '--icon', 'assets/images/pgchess.ico',
+        '--icon', 'assets/images/pgchess.png',
     ]
     subprocess.run(cmd, check=True)
 
-    # PyInstaller creates both a folder and .app bundle; only the .app is needed
+    # PyInstaller creates both a COLLECT folder and a .app bundle; only the .app is needed
     standalone_folder = 'dist/PGChess'
     if os.path.exists(standalone_folder) and os.path.isdir(standalone_folder):
         shutil.rmtree(standalone_folder)
