@@ -1,5 +1,5 @@
-"""PyChess application entry point."""
-from pychess.game_manager import GameManager
+"""PGChess application entry point."""
+from pgchess.game_manager import GameManager
 
 if __name__ == '__main__':
     GameManager().run()

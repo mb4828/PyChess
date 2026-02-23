@@ -1,6 +1,6 @@
 """Tests for logic/move_executor.py"""
-from pychess.state.game_state import GameState
-from pychess.state.move_executor import execute_move
+from pgchess.state.game_state import GameState
+from pgchess.state.move_executor import execute_move
 
 
 def empty_board() -> GameState:

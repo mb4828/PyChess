@@ -1,7 +1,7 @@
 """Tests for basic piece movement validation"""
-from pychess.state.game_context import GameContext
-from pychess.state.game_state import GameState
-from pychess.state.move_validator import get_valid_moves
+from pgchess.state.game_context import GameContext
+from pgchess.state.game_state import GameState
+from pgchess.state.move_validator import get_valid_moves
 
 
 def empty_board() -> GameState:

@@ -1,7 +1,7 @@
 """Tests for check and checkmate logic"""
-from pychess.state.game_context import GameContext
-from pychess.state.game_state import GameState
-from pychess.state.move_validator import is_in_check, is_in_checkmate, get_valid_moves
+from pgchess.state.game_context import GameContext
+from pgchess.state.game_state import GameState
+from pgchess.state.move_validator import is_in_check, is_in_checkmate, get_valid_moves
 
 
 def empty_board() -> GameState:

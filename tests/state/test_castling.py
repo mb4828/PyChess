@@ -1,8 +1,8 @@
 """Tests for castling logic"""
-from pychess.state.game_context import GameContext
-from pychess.state.game_state import GameState
-from pychess.state.move_validator import get_valid_moves
-from pychess.state.move_executor import execute_move
+from pgchess.state.game_context import GameContext
+from pgchess.state.game_state import GameState
+from pgchess.state.move_validator import get_valid_moves
+from pgchess.state.move_executor import execute_move
 
 
 def empty_board() -> GameState:

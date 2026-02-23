@@ -3,7 +3,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from pychess import constants
+from pgchess import constants
 
 if TYPE_CHECKING:
     from .game_state import GameState

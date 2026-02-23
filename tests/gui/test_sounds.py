@@ -1,8 +1,8 @@
 """Tests for pychess.gui.sounds: sound effect playback routing."""
 from unittest.mock import patch, MagicMock
 
-from pychess import constants
-from pychess.gui.sounds import Sounds
+from pgchess import constants
+from pgchess.gui.sounds import Sounds
 
 
 class TestSoundsPlay:

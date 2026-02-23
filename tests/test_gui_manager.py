@@ -4,9 +4,9 @@ from unittest.mock import patch, MagicMock
 
 import pygame
 
-from pychess import constants
-from pychess.gui.sounds import Sounds
-from pychess.state.game_state import GameState
+from pgchess import constants
+from pgchess.gui.sounds import Sounds
+from pgchess.state.game_state import GameState
 
 
 def _make_gui():
@@ -16,7 +16,7 @@ def _make_gui():
 
     with patch('pychess.gui.sprites.pygame.image.load', return_value=mock_surface):
         with patch('pychess.gui.sprites.get_resource_path', side_effect=lambda p: p):
-            from pychess.gui_manager import GUIManager
+            from pgchess.gui_manager import GUIManager
             window = MagicMock(spec=pygame.Surface)
             gui = GUIManager(window, MagicMock(spec=Sounds))
             return gui, window

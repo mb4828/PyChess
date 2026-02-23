@@ -6,9 +6,9 @@ from the board (see pvp.py drag_start line 51). Tests must follow this conventio
 However, is_in_checkmate calls get_valid_moves WITHOUT removing pieces first,
 which is a bug that causes incorrect results for pinned pieces.
 """
-from pychess.state.game_context import GameContext
-from pychess.state.game_state import GameState
-from pychess.state.move_validator import get_valid_moves, is_in_check, is_in_checkmate
+from pgchess.state.game_context import GameContext
+from pgchess.state.game_state import GameState
+from pgchess.state.move_validator import get_valid_moves, is_in_check, is_in_checkmate
 
 
 def empty_board() -> GameState:

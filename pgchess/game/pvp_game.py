@@ -1,5 +1,5 @@
 """Player vs. player (PVP) game mode."""
-from pychess.game.game import Game
+from pgchess.game.game import Game
 
 
 class PVPGame(Game):

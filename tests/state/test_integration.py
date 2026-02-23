@@ -1,7 +1,7 @@
 """Integration tests that simulate multi-move games to verify state consistency."""
-from pychess.state.game_state import GameState
-from pychess.state_manager import StateManager
-from pychess.state.move_validator import is_in_check, is_in_checkmate, is_in_stalemate
+from pgchess.state.game_state import GameState
+from pgchess.state_manager import StateManager
+from pgchess.state.move_validator import is_in_check, is_in_checkmate, is_in_stalemate
 
 
 def setup_engine(pieces):

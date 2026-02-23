@@ -4,8 +4,8 @@ from unittest.mock import patch, MagicMock, call
 
 import pygame
 
-from pychess import constants
-from pychess.gui.gui_utils import get_resource_path, draw_board, draw_solid_rect, draw_solid_circle
+from pgchess import constants
+from pgchess.gui.gui_utils import get_resource_path, draw_board, draw_solid_rect, draw_solid_circle
 
 
 class TestGetResourcePath:
@@ -15,13 +15,13 @@ class TestGetResourcePath:
         """Without _MEIPASS, the original path is returned unchanged."""
         if hasattr(sys, '_MEIPASS'):
             delattr(sys, '_MEIPASS')
-        assert get_resource_path('assets/images/pychess.png') == 'assets/images/pychess.png'
+        assert get_resource_path('assets/images/pgchess.png') == 'assets/images/pgchess.png'
 
     def test_returns_joined_path_when_frozen(self):
         """With _MEIPASS set, the path is joined to the temp directory."""
         with patch.object(sys, '_MEIPASS', '/tmp/_MEI12345', create=True):
-            result = get_resource_path('assets/images/pychess.png')
-            assert result == '/tmp/_MEI12345/assets/images/pychess.png'
+            result = get_resource_path('assets/images/pgchess.png')
+            assert result == '/tmp/_MEI12345/assets/images/pgchess.png'
 
     def test_empty_path(self):
         """An empty relative path returns the base dir (with trailing sep) when frozen."""

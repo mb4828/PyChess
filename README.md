@@ -1,4 +1,4 @@
-# PyChess
+# PGChess
 
 Python implementation of chess using PyGame - Incomplete !
 
@@ -32,5 +32,5 @@ python build.py
 ```
 
 This will create an executable in the `dist/` folder:
-- **Windows:** Single-file executable `dist/PyChess.exe`
-- **macOS:** App bundle `dist/PyChess.app` (drag to Applications folder)
+- **Windows:** Single-file executable `dist/PGChess.exe`
+- **macOS:** App bundle `dist/PGChess.app` (drag to Applications folder)

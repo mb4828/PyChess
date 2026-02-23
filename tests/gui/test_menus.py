@@ -5,9 +5,9 @@ from unittest.mock import patch, MagicMock, call
 import pygame
 import pygame_menu
 
-from pychess import constants
-from pychess.gui.menus import StartMenu, PauseMenu, PromotionMenu, GameOverMenu, _draw_overlay
-from pychess.gui.sounds import Sounds
+from pgchess import constants
+from pgchess.gui.menus import StartMenu, PauseMenu, PromotionMenu, GameOverMenu, _draw_overlay
+from pgchess.gui.sounds import Sounds
 
 
 class TestDrawOverlay:

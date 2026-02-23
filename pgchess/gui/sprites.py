@@ -4,8 +4,8 @@ from typing import Dict, Optional
 
 import pygame
 
-from pychess import constants
-from pychess.state.game_state import Piece
+from pgchess import constants
+from pgchess.state.game_state import Piece
 from .gui_utils import get_resource_path
 
 

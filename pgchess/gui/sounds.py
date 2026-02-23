@@ -1,7 +1,7 @@
 """Sound effect playback functions."""
 import pygame
 
-from pychess import constants
+from pgchess import constants
 from .gui_utils import get_resource_path
 
 

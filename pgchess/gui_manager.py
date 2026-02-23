@@ -4,11 +4,11 @@ from typing import List, Tuple
 
 import pygame
 
-from pychess import constants
-from pychess.gui.gui_utils import draw_board as _draw_board, draw_solid_rect, draw_solid_circle
-from pychess.gui.sprites import Sprites
-from pychess.gui.sounds import Sounds
-from pychess.state.game_state import GameState
+from pgchess import constants
+from pgchess.gui.gui_utils import draw_board as _draw_board, draw_solid_rect, draw_solid_circle
+from pgchess.gui.sprites import Sprites
+from pgchess.gui.sounds import Sounds
+from pgchess.state.game_state import GameState
 
 
 class GUIManager:

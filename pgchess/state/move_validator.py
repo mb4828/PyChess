@@ -1,7 +1,7 @@
 """Move validation logic: legal moves, check, checkmate, and stalemate detection."""
 from typing import List, Tuple
 
-from pychess import constants
+from pgchess import constants
 from .game_context import GameContext
 from .game_state import GameState, Piece
 from .move_utils import is_piece_at, in_bounds, get_piece_color, in_bounds_y, in_bounds_x, is_same_color

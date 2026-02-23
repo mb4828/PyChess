@@ -5,9 +5,9 @@ into a single interface that any game mode can use.
 """
 from typing import Dict, Tuple
 
-from pychess.state.game_state import GameState
-from pychess.state.game_context import GameContext
-from pychess.state import move_validator, move_executor, move_utils
+from pgchess.state.game_state import GameState
+from pgchess.state.game_context import GameContext
+from pgchess.state import move_validator, move_executor, move_utils
 
 
 class StateManager:

@@ -1,22 +1,22 @@
-"""Main game manager for PyChess. Manages the application loop, menus, and game mode transitions."""
+"""Main game manager for PGChess. Manages the application loop, menus, and game mode transitions."""
 import logging
 from enum import Enum
 from typing import Optional
 
 import pygame
 
-from pychess import constants
-from pychess.game.game import Game
-from pychess.game.pvp_game import PVPGame
-from pychess.gui.gui_utils import get_resource_path
-from pychess.gui.menus import StartMenu, PauseMenu, GameOverMenu, PromotionMenu
-from pychess.gui.sounds import Sounds
+from pgchess import constants
+from pgchess.game.game import Game
+from pgchess.game.pvp_game import PVPGame
+from pgchess.gui.gui_utils import get_resource_path
+from pgchess.gui.menus import StartMenu, PauseMenu, GameOverMenu, PromotionMenu
+from pgchess.gui.sounds import Sounds
 
 logger = logging.getLogger(__name__)
 
 
 class AppState(Enum):
-    """Possible states of the PyChess application."""
+    """Possible states of the PGChess application."""
     START = 1
     PAUSE = 2
     PLAYER_MOVE = 3
@@ -65,7 +65,7 @@ class GameManager:
         Called once from ``__init__`` before the main loop starts.
         """
         self._window = pygame.display.set_mode((constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT))
-        pygame.display.set_caption(f'PyChess v{constants.VERSION}')
+        pygame.display.set_caption(f'PGChess v{constants.VERSION}')
         pygame.display.set_icon(
             pygame.image.load(get_resource_path(constants.PATH_KL)))
 

@@ -1,6 +1,6 @@
 """Tests for stalemate detection"""
-from pychess.state.game_state import GameState
-from pychess.state.move_validator import is_in_stalemate, is_in_checkmate
+from pgchess.state.game_state import GameState
+from pgchess.state.move_validator import is_in_stalemate, is_in_checkmate
 
 
 def empty_board() -> GameState:

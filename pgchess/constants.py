@@ -1,4 +1,4 @@
-"""Game-wide constants for PyChess: window settings, board dimensions, asset paths, and custom events."""
+"""Game-wide constants for PGChess: window settings, board dimensions, asset paths, and custom events."""
 import pygame
 
 VERSION = '2026.2.1'
@@ -31,7 +31,7 @@ SQ_HINT_ALPHA = 127
 
 # ==== Image Asset Paths ==== #
 
-PATH_LOGO = 'assets/images/pychess.png'
+PATH_LOGO = 'assets/images/pgchess.png'
 PATH_KL = 'assets/images/white_king.png'
 PATH_KD = 'assets/images/black_king.png'
 PATH_QL = 'assets/images/white_queen.png'

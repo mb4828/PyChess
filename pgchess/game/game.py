@@ -5,10 +5,10 @@ from typing import List, Optional, Tuple
 import pygame
 from pygame.event import Event
 
-from pychess import constants
-from pychess.gui.sounds import Sounds
-from pychess.gui_manager import GUIManager
-from pychess.state_manager import StateManager
+from pgchess import constants
+from pgchess.gui.sounds import Sounds
+from pgchess.gui_manager import GUIManager
+from pgchess.state_manager import StateManager
 
 
 class Game:

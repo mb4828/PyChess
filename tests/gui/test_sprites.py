@@ -3,7 +3,7 @@ from unittest.mock import patch, MagicMock
 
 import pygame
 
-from pychess.gui.sprites import Sprites, _load_sprite
+from pgchess.gui.sprites import Sprites, _load_sprite
 
 
 class TestLoadSprite:

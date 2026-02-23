@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build script for PyChess. Creates single-file executables for Windows and macOS."""
+"""Build script for PGChess. Creates single-file executables for Windows and macOS."""
 import logging
 import os
 import platform
@@ -13,7 +13,7 @@ logger = logging.getLogger(__name__)
 def clean_build() -> None:
     """Remove old build artifacts from previous PyInstaller runs."""
     dirs_to_remove = ['build', 'dist', '__pycache__']
-    files_to_remove = ['PyChess.spec']
+    files_to_remove = ['PGChess.spec']
 
     for dir_name in dirs_to_remove:
         if os.path.exists(dir_name):
@@ -39,12 +39,12 @@ def build_windows() -> None:
         '--add-data', 'assets/images/*;assets/images',
         '--add-data', 'assets/sounds/*;assets/sounds',
         '--add-data', 'venv/Lib/site-packages/pygame_menu/resources/fonts/*;pygame_menu/resources/fonts',
-        '--name', 'PyChess',
-        '--icon', 'assets/images/pychess.ico',
+        '--name', 'PGChess',
+        '--icon', 'assets/images/pgchess.ico',
         '--noconsole',
     ]
     subprocess.run(cmd, check=True)
-    logger.info("Build complete! Executable is in dist/PyChess.exe")
+    logger.info("Build complete! Executable is in dist/PGChess.exe")
 
 
 def build_macos() -> None:
@@ -60,18 +60,18 @@ def build_macos() -> None:
         '--add-data', 'assets/images/*:assets/images',
         '--add-data', 'assets/sounds/*:assets/sounds',
         '--add-data', 'venv/lib/python3.11/site-packages/pygame_menu/resources/fonts/*:pygame_menu/resources/fonts',
-        '--name', 'PyChess',
-        '--icon', 'assets/images/pychess.ico',
+        '--name', 'PGChess',
+        '--icon', 'assets/images/pgchess.ico',
     ]
     subprocess.run(cmd, check=True)
 
     # PyInstaller creates both a folder and .app bundle; only the .app is needed
-    standalone_folder = 'dist/PyChess'
+    standalone_folder = 'dist/PGChess'
     if os.path.exists(standalone_folder) and os.path.isdir(standalone_folder):
         shutil.rmtree(standalone_folder)
         logger.info("Cleaned up %s/ folder", standalone_folder)
 
-    logger.info("Build complete! App bundle is in dist/PyChess.app")
+    logger.info("Build complete! App bundle is in dist/PGChess.app")
 
 
 def main() -> None:
@@ -79,7 +79,7 @@ def main() -> None:
     logging.basicConfig(level=logging.INFO, format='%(message)s')
 
     system = platform.system()
-    logger.info("PyChess Build Script")
+    logger.info("PGChess Build Script")
     logger.info("Platform: %s", system)
     logger.info("-" * 50)
 

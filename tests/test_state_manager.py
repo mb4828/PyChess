@@ -1,5 +1,5 @@
 """Tests for engine/game_engine.py"""
-from pychess.state_manager import StateManager
+from pgchess.state_manager import StateManager
 
 
 def setup_engine(pieces):

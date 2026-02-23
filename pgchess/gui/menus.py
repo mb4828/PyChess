@@ -5,7 +5,7 @@ import pygame
 import pygame_menu
 from pygame_menu.themes import Theme
 
-from pychess import constants
+from pgchess import constants
 from .gui_utils import draw_board, draw_solid_rect, get_resource_path
 from .sounds import Sounds
 

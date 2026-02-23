@@ -1,5 +1,5 @@
 """Tests for engine/game_context.py"""
-from pychess.state.game_context import GameContext
+from pgchess.state.game_context import GameContext
 
 
 class TestCastlingRights:

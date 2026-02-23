@@ -5,7 +5,7 @@ from typing import Tuple
 
 import pygame
 
-from pychess import constants
+from pgchess import constants
 
 
 def get_resource_path(file_path: str) -> str:
@@ -14,7 +14,7 @@ def get_resource_path(file_path: str) -> str:
     PyInstaller stores assets in a temp directory (sys._MEIPASS) when running
     as a frozen executable; this falls back to the raw path in development.
 
-    :param file_path: Relative asset path (e.g. 'assets/images/pychess.png')
+    :param file_path: Relative asset path (e.g. 'assets/images/pgchess.png')
     :return: Resolved absolute or relative path
     """
     try:
