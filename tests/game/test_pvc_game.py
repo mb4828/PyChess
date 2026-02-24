@@ -139,3 +139,53 @@ class TestApplyComputerMove:
         # Black pawn at a7 (1,0) → a1 (7,0): promotion row for black
         pvc_game._apply_computer_move((1, 0, 7, 0, 'q'))
         assert pvc_game.state.get_piece(7, 0) == 'qd'
+
+    def test_sets_last_computer_move_after_valid_move(self, pvc_game):
+        """_apply_computer_move should record the from/to squares for highlight rendering."""
+        pvc_game.state.get_context().switch_turn()  # black's turn
+        pvc_game._apply_computer_move((1, 4, 3, 4, ''))  # e7 → e5
+        assert pvc_game._last_computer_move == ((1, 4), (3, 4))
+
+    def test_does_not_set_last_computer_move_on_empty_square(self, pvc_game):
+        """No highlight should be recorded when the move references an empty square."""
+        pvc_game._last_computer_move = None
+        pvc_game._apply_computer_move((4, 4, 3, 4, ''))  # (4,4) is empty
+        assert pvc_game._last_computer_move is None
+
+
+class TestLastMoveHighlight:
+    def test_highlight_cleared_when_human_triggers_compute(self, pvc_game):
+        """_last_computer_move should be None once the human's move starts the engine."""
+        pvc_game._last_computer_move = ((1, 4), (3, 4))
+        with patch.object(pvc_game, '_start_compute'):
+            with patch.object(pvc_game.state, 'is_in_checkmate', return_value=False):
+                with patch.object(pvc_game.state, 'is_in_stalemate', return_value=False):
+                    pvc_game._on_move_complete(is_capture=False)
+        assert pvc_game._last_computer_move is None
+
+    def test_draw_highlights_last_computer_move(self, pvc_game):
+        """draw() should call draw_square_highlight for both squares of the last computer move."""
+        pvc_game._last_computer_move = ((1, 4), (3, 4))
+        pvc_game.draw()
+        pvc_game.gui.draw_square_highlight.assert_any_call(1, 4)
+        pvc_game.gui.draw_square_highlight.assert_any_call(3, 4)
+
+    def test_draw_no_highlight_when_no_last_move(self, pvc_game):
+        """draw() should not call draw_square_highlight when no computer move is stored."""
+        pvc_game._last_computer_move = None
+        pvc_game.draw()
+        pvc_game.gui.draw_square_highlight.assert_not_called()
+
+    def test_highlight_drawn_before_pieces(self, pvc_game):
+        """Highlights must be drawn before pieces so they appear beneath them."""
+        pvc_game._last_computer_move = ((1, 4), (3, 4))
+
+        call_order = []
+        pvc_game.gui.draw_square_highlight.side_effect = lambda *_: call_order.append('highlight')
+        pvc_game.gui.draw_pieces.side_effect = lambda *_: call_order.append('pieces')
+
+        pvc_game.draw()
+
+        assert 'highlight' in call_order
+        assert 'pieces' in call_order
+        assert call_order.index('highlight') < call_order.index('pieces')

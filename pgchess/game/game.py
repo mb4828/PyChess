@@ -61,12 +61,16 @@ class Game:
     def draw(self) -> None:
         """Render the board, pieces, and overlays for the current frame."""
         self.gui.draw_board()
+        self._draw_board_highlights()
         self.gui.draw_pieces(self.state.get_state(), constants.BOARD_WIDTH, constants.BOARD_HEIGHT)
         self.gui.draw_overlays(
             self.drag_piece, self.drag_piece_start_sq,
             self.drag_piece_cursor_sq, self.drag_piece_cursor_pos,
             self.drag_piece_valid_moves,
         )
+
+    def _draw_board_highlights(self) -> None:
+        """Hook for subclasses to draw square highlights beneath the pieces."""
 
     def _drag_start(self, x: int, y: int) -> None:
         """Begin dragging a piece from the square under the cursor.

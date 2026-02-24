@@ -1,7 +1,7 @@
 """Player-vs-Computer game mode. Human plays white; computer plays black."""
 import logging
 from threading import Thread
-from typing import Tuple
+from typing import Optional, Tuple
 
 import pygame
 from pygame.event import Event
@@ -33,6 +33,7 @@ class PVCGame(Game):
         super().__init__(window, sounds)
         self._engine: SunfishAdapter = SunfishAdapter()
         self._computing: bool = False
+        self._last_computer_move: Optional[Tuple[Tuple[int, int], Tuple[int, int]]] = None
 
     def handle_event(self, event: pygame.event.Event) -> None:
         """Dispatch a pygame event, applying a computer move or forwarding to the player.
@@ -59,6 +60,7 @@ class PVCGame(Game):
             and not self.state.is_in_checkmate(color)
             and not self.state.is_in_stalemate(color)
         ):
+            self._last_computer_move = None
             self._start_compute()
 
     # ==== Computer move pipeline ==== #
@@ -113,8 +115,16 @@ class PVCGame(Game):
             # Auto-promote to queen when no human preference is available
             self.state.promote_pawn(px, py, promo or 'q')
 
+        self._last_computer_move = ((start_row, start_col), (end_row, end_col))
         self._on_move_complete(result['is_capture'])
         self.drag_piece = ''
+
+    def _draw_board_highlights(self) -> None:
+        """Highlight the computer's last move beneath the pieces."""
+        if self._last_computer_move is not None:
+            from_sq, to_sq = self._last_computer_move
+            self.gui.draw_square_highlight(*from_sq)
+            self.gui.draw_square_highlight(*to_sq)
 
     def draw(self) -> None:
         """Render the board and a 'Thinking...' indicator while the engine is searching."""
