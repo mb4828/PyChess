@@ -18,7 +18,7 @@ class TestPawnDoubleMoveThroughPiece:
         board = empty_board()
         board.set_piece(6, 4, 'pl')
         board.set_piece(5, 4, 'pd')  # blocking piece at intermediate square
-        moves = get_valid_moves(board, GameContext(), 'pl',6, 4)
+        moves = get_valid_moves(board, GameContext(), 'pl', 6, 4)
         assert (4, 4) not in moves, "Pawn jumped over a blocking piece!"
         assert (5, 4) not in moves  # also can't move 1 forward
 
@@ -27,7 +27,7 @@ class TestPawnDoubleMoveThroughPiece:
         board = empty_board()
         board.set_piece(1, 4, 'pd')
         board.set_piece(2, 4, 'pl')  # blocking piece at intermediate square
-        moves = get_valid_moves(board, GameContext(), 'pd',1, 4)
+        moves = get_valid_moves(board, GameContext(), 'pd', 1, 4)
         assert (3, 4) not in moves, "Pawn jumped over a blocking piece!"
         assert (2, 4) not in moves
 
@@ -36,15 +36,16 @@ class TestPawnDoubleMoveThroughPiece:
         board = empty_board()
         board.set_piece(6, 4, 'pl')
         board.set_piece(4, 4, 'pd')  # piece at destination
-        moves = get_valid_moves(board, GameContext(), 'pl',6, 4)
+        moves = get_valid_moves(board, GameContext(), 'pl', 6, 4)
         assert (4, 4) not in moves
         assert (5, 4) in moves  # can still move 1 forward
 
     def test_dark_pawn_blocked_at_destination_only(self):
+        """Pawn should not double-move if destination is blocked but path is clear"""
         board = empty_board()
         board.set_piece(1, 4, 'pd')
         board.set_piece(3, 4, 'pl')  # piece at destination
-        moves = get_valid_moves(board, GameContext(), 'pd',1, 4)
+        moves = get_valid_moves(board, GameContext(), 'pd', 1, 4)
         assert (3, 4) not in moves
         assert (2, 4) in moves
 
@@ -52,7 +53,7 @@ class TestPawnDoubleMoveThroughPiece:
         """Pawn should be able to double-move when path is fully clear"""
         board = empty_board()
         board.set_piece(6, 4, 'pl')
-        moves = get_valid_moves(board, GameContext(), 'pl',6, 4)
+        moves = get_valid_moves(board, GameContext(), 'pl', 6, 4)
         assert (4, 4) in moves
         assert (5, 4) in moves
 
@@ -61,6 +62,6 @@ class TestPawnDoubleMoveThroughPiece:
         board = empty_board()
         board.set_piece(6, 4, 'pl')
         board.set_piece(5, 4, 'pl')  # own piece blocking
-        moves = get_valid_moves(board, GameContext(), 'pl',6, 4)
+        moves = get_valid_moves(board, GameContext(), 'pl', 6, 4)
         assert (4, 4) not in moves, "Pawn jumped over own piece!"
         assert (5, 4) not in moves

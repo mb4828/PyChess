@@ -8,10 +8,11 @@ which is a bug that causes incorrect results for pinned pieces.
 """
 from pgchess.state.game_context import GameContext
 from pgchess.state.game_state import GameState
-from pgchess.state.move_validator import get_valid_moves, is_in_check, is_in_checkmate
+from pgchess.state.move_validator import get_valid_moves, is_in_check
 
 
 def empty_board() -> GameState:
+    """Return a fresh empty GameState for test setup."""
     return GameState.empty()
 
 
@@ -25,7 +26,7 @@ class TestAbsolutePin:
         board.set_piece(7, 4, 'kl')
         board.set_piece(0, 4, 'rd')  # enemy rook pinning
         # Rook at (5,4) removed before calling (like PVP does)
-        moves = get_valid_moves(board, GameContext(), 'rl',5, 4)
+        moves = get_valid_moves(board, GameContext(), 'rl', 5, 4)
         for move in moves:
             assert move[1] == 4, f"Pinned rook moved off pin line to {move}"
 
@@ -35,7 +36,7 @@ class TestAbsolutePin:
         board.set_piece(7, 4, 'kl')
         board.set_piece(0, 4, 'rd')  # pinning rook
         # Rook removed from (5,4) before calling
-        moves = get_valid_moves(board, GameContext(), 'rl',5, 4)
+        moves = get_valid_moves(board, GameContext(), 'rl', 5, 4)
         assert len(moves) > 0
         assert (0, 4) in moves  # can capture the pinning rook
 
@@ -45,7 +46,7 @@ class TestAbsolutePin:
         board.set_piece(7, 4, 'kl')
         board.set_piece(0, 4, 'rd')  # enemy rook pinning along file
         # Bishop removed from (5,4) before calling
-        moves = get_valid_moves(board, GameContext(), 'bl',5, 4)
+        moves = get_valid_moves(board, GameContext(), 'bl', 5, 4)
         assert len(moves) == 0, "Pinned bishop should have no legal moves"
 
     def test_pinned_knight_cannot_move(self):
@@ -54,7 +55,7 @@ class TestAbsolutePin:
         board.set_piece(7, 4, 'kl')
         board.set_piece(0, 4, 'rd')  # enemy rook pinning along file
         # Knight removed from (5,4) before calling
-        moves = get_valid_moves(board, GameContext(), 'nl',5, 4)
+        moves = get_valid_moves(board, GameContext(), 'nl', 5, 4)
         assert len(moves) == 0, "Pinned knight should have no legal moves"
 
     def test_pinned_pawn_cannot_move_off_pin_line(self):
@@ -63,7 +64,7 @@ class TestAbsolutePin:
         board.set_piece(7, 4, 'kl')
         board.set_piece(5, 2, 'bd')  # enemy bishop pinning along diagonal
         # Pawn removed from (6,3) before calling
-        moves = get_valid_moves(board, GameContext(), 'pl',6, 3)
+        moves = get_valid_moves(board, GameContext(), 'pl', 6, 3)
         for move in moves:
             assert move == (5, 2), f"Pinned pawn made illegal move to {move}"
 
@@ -85,6 +86,8 @@ class TestCheckmateWithPinnedDefender:
 
 
 class TestDiscoveredCheck:
+    """Tests for positions where moving a piece exposes the king to check."""
+
     def test_moving_piece_reveals_check(self):
         """Moving a piece that blocks a check line should not be allowed.
         Piece removed from origin before calling (matching PVP behavior)."""
@@ -92,7 +95,7 @@ class TestDiscoveredCheck:
         board.set_piece(7, 4, 'kl')
         board.set_piece(0, 4, 'rd')  # enemy rook
         # Knight removed from (5,4) before calling
-        moves = get_valid_moves(board, GameContext(), 'nl',5, 4)
+        moves = get_valid_moves(board, GameContext(), 'nl', 5, 4)
         assert len(moves) == 0, "Knight moved but exposed king to check"
 
     def test_discovered_check_pawn(self):
@@ -101,7 +104,7 @@ class TestDiscoveredCheck:
         board.set_piece(7, 4, 'kl')
         board.set_piece(0, 4, 'rd')  # enemy rook on same file
         # Pawn removed from (6,4) before calling
-        moves = get_valid_moves(board, GameContext(), 'pl',6, 4)
+        moves = get_valid_moves(board, GameContext(), 'pl', 6, 4)
         for move in moves:
             assert move[1] == 4, f"Pawn moved off file and exposed king: {move}"
 

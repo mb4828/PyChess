@@ -5,46 +5,56 @@ from pgchess.state.move_validator import is_in_check, is_in_checkmate, get_valid
 
 
 def empty_board() -> GameState:
+    """Return a fresh empty GameState for test setup."""
     return GameState.empty()
 
 
 class TestIsInCheck:
+    """Tests for is_in_check detection across all attacker types."""
+
     def test_not_in_check(self):
+        """King alone on an otherwise empty board should not be in check."""
         board = empty_board()
         board.set_piece(7, 4, 'kl')
         assert is_in_check(board, 'l') is False
 
     def test_in_check_by_rook(self):
+        """King attacked along a file by an enemy rook should be in check."""
         board = empty_board()
         board.set_piece(7, 4, 'kl')
         board.set_piece(0, 4, 'rd')  # rook on same file
         assert is_in_check(board, 'l') is True
 
     def test_in_check_by_bishop(self):
+        """King attacked along a diagonal by an enemy bishop should be in check."""
         board = empty_board()
         board.set_piece(4, 4, 'kl')
         board.set_piece(2, 2, 'bd')  # bishop on diagonal
         assert is_in_check(board, 'l') is True
 
     def test_in_check_by_queen(self):
+        """King attacked along a rank by an enemy queen should be in check."""
         board = empty_board()
         board.set_piece(4, 4, 'kl')
         board.set_piece(4, 7, 'qd')  # queen on same rank
         assert is_in_check(board, 'l') is True
 
     def test_in_check_by_knight(self):
+        """King attacked by an enemy knight should be in check."""
         board = empty_board()
         board.set_piece(4, 4, 'kl')
         board.set_piece(2, 3, 'nd')  # knight attacking
         assert is_in_check(board, 'l') is True
 
     def test_in_check_by_pawn(self):
+        """King attacked diagonally by an enemy pawn should be in check."""
         board = empty_board()
         board.set_piece(4, 4, 'kl')
         board.set_piece(3, 3, 'pd')  # dark pawn attacks diagonally downward
         assert is_in_check(board, 'l') is True
 
     def test_not_in_check_blocked_by_piece(self):
+        """Enemy rook on same file should not give check when an own piece blocks."""
         board = empty_board()
         board.set_piece(7, 4, 'kl')
         board.set_piece(5, 4, 'pl')  # own piece blocks
@@ -52,12 +62,14 @@ class TestIsInCheck:
         assert is_in_check(board, 'l') is False
 
     def test_dark_king_in_check(self):
+        """Dark king attacked along a file by a light rook should be in check."""
         board = empty_board()
         board.set_piece(0, 4, 'kd')
         board.set_piece(7, 4, 'rl')  # rook on same file
         assert is_in_check(board, 'd') is True
 
     def test_accepts_piece_code_or_color(self):
+        """is_in_check should accept both a color char and a full piece code."""
         board = empty_board()
         board.set_piece(4, 4, 'kl')
         board.set_piece(0, 4, 'rd')
@@ -70,39 +82,45 @@ class TestKingCannotMoveIntoCheck:
     """King must be removed from origin before calling get_valid_moves (matching PVP)."""
 
     def test_king_cannot_move_into_rook_line(self):
+        """King must not be allowed to step onto any square controlled by an enemy rook."""
         board = empty_board()
         board.set_piece(0, 5, 'rd')  # rook controls column 5
         # King removed from (4,4) before calling
-        moves = get_valid_moves(board, GameContext(), 'kl',4, 4)
+        moves = get_valid_moves(board, GameContext(), 'kl', 4, 4)
         assert (4, 5) not in moves
         assert (3, 5) not in moves
         assert (5, 5) not in moves
 
     def test_king_cannot_move_adjacent_to_enemy_king(self):
+        """King must not move to a square adjacent to the opposing king."""
         board = empty_board()
         board.set_piece(4, 6, 'kd')
         # King removed from (4,4) before calling
-        moves = get_valid_moves(board, GameContext(), 'kl',4, 4)
+        moves = get_valid_moves(board, GameContext(), 'kl', 4, 4)
         assert (4, 5) not in moves  # between the two kings
 
     def test_king_can_capture_undefended_attacker(self):
+        """King may capture an enemy piece that is not defended by any other attacker."""
         board = empty_board()
         board.set_piece(4, 5, 'rd')  # undefended rook
         # King removed from (4,4) before calling
-        moves = get_valid_moves(board, GameContext(), 'kl',4, 4)
+        moves = get_valid_moves(board, GameContext(), 'kl', 4, 4)
         assert (4, 5) in moves  # can capture
 
     def test_king_cannot_capture_defended_piece(self):
+        """King must not capture an enemy piece when doing so leaves it in check."""
         board = empty_board()
         board.set_piece(4, 5, 'rd')  # rook defended by another rook
         board.set_piece(4, 7, 'rd')
         # King removed from (4,4) before calling
-        moves = get_valid_moves(board, GameContext(), 'kl',4, 4)
+        moves = get_valid_moves(board, GameContext(), 'kl', 4, 4)
         # capturing puts king in check from other rook
         assert (4, 5) not in moves
 
 
 class TestCheckmate:
+    """Tests for is_in_checkmate across common mating patterns."""
+
     def test_back_rank_mate(self):
         """Classic back rank mate: king trapped by own pawns, rook delivers check.
         BUG: This fails because is_in_checkmate has the ghost-piece bug — the king's

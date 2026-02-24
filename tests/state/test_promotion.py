@@ -6,26 +6,31 @@ from pgchess.state.move_executor import execute_move
 
 
 def empty_board() -> GameState:
+    """Return a fresh empty GameState for test setup."""
     return GameState.empty()
 
 
 class TestPromotionDetection:
+    """Tests for pawn promotion move availability and board state after promotion."""
+
     def test_light_pawn_can_reach_promotion_rank(self):
+        """Light pawn one square from the back rank should have the promotion square as a valid move."""
         board = empty_board()
         board.set_piece(7, 4, 'kl')
         board.set_piece(0, 4, 'kd')
         board.set_piece(1, 3, 'pl')  # one square from promotion
         board.clear_square(1, 3)
-        moves = get_valid_moves(board, GameContext(), 'pl',1, 3)
+        moves = get_valid_moves(board, GameContext(), 'pl', 1, 3)
         assert (0, 3) in moves  # can move to back rank
 
     def test_dark_pawn_can_reach_promotion_rank(self):
+        """Dark pawn one square from the back rank should have the promotion square as a valid move."""
         board = empty_board()
         board.set_piece(7, 4, 'kl')
         board.set_piece(0, 4, 'kd')
         board.set_piece(6, 3, 'pd')  # one square from promotion
         board.clear_square(6, 3)
-        moves = get_valid_moves(board, GameContext(), 'pd',6, 3)
+        moves = get_valid_moves(board, GameContext(), 'pd', 6, 3)
         assert (7, 3) in moves  # can move to back rank
 
     def test_promotion_square_detection_light(self):
@@ -53,5 +58,5 @@ class TestPromotionDetection:
         board.set_piece(1, 3, 'pl')
         board.set_piece(0, 2, 'nd')  # piece to capture
         board.clear_square(1, 3)
-        moves = get_valid_moves(board, GameContext(), 'pl',1, 3)
+        moves = get_valid_moves(board, GameContext(), 'pl', 1, 3)
         assert (0, 2) in moves  # can capture and promote

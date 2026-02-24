@@ -4,10 +4,13 @@ from pgchess.state.move_validator import is_in_stalemate, is_in_checkmate
 
 
 def empty_board() -> GameState:
+    """Return a fresh empty GameState for test setup."""
     return GameState.empty()
 
 
 class TestStalemate:
+    """Tests for is_in_stalemate across various board configurations."""
+
     def test_basic_stalemate(self):
         """King has no legal moves and is not in check"""
         board = empty_board()
@@ -33,13 +36,7 @@ class TestStalemate:
         assert is_in_stalemate(board, 'd') is False
 
     def test_stalemate_king_cornered_by_queen(self):
-        """Classic stalemate: king in corner with queen cutting off escape"""
-        board = empty_board()
-        board.set_piece(7, 7, 'kl')
-        board.set_piece(5, 6, 'qd')  # queen blocks row 6 and col 6
-        board.set_piece(0, 0, 'kd')
-        # king at (7,7) can go to (6,7), (6,6), (7,6) but queen attacks (6,6) and (7,6)
-        # and (6,7) is not attacked by queen at (5,6)... let me set up a proper stalemate
+        """Classic stalemate: light king in corner with queen cutting off all escape squares."""
         board = empty_board()
         board.set_piece(0, 0, 'kl')
         board.set_piece(2, 1, 'qd')  # queen at (2,1) attacks (1,0), (1,1), (0,1)

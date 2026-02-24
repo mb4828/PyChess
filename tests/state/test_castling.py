@@ -6,15 +6,20 @@ from pgchess.state.move_executor import execute_move
 
 
 def empty_board() -> GameState:
+    """Return a fresh empty GameState for test setup."""
     return GameState.empty()
 
 
 def default_context() -> GameContext:
+    """Return a fresh default GameContext for test setup."""
     return GameContext()
 
 
 class TestCastlingValidation:
+    """Tests for castling move availability under various board and context conditions."""
+
     def test_kingside_castle_light(self):
+        """Light king with h1 rook and clear path should have g1 as a valid move."""
         board = empty_board()
         board.set_piece(7, 4, 'kl')
         board.set_piece(7, 7, 'rl')
@@ -23,6 +28,7 @@ class TestCastlingValidation:
         assert (7, 6) in moves
 
     def test_queenside_castle_light(self):
+        """Light king with a1 rook and clear path should have c1 as a valid move."""
         board = empty_board()
         board.set_piece(7, 4, 'kl')
         board.set_piece(7, 0, 'rl')
@@ -31,6 +37,7 @@ class TestCastlingValidation:
         assert (7, 2) in moves
 
     def test_kingside_castle_dark(self):
+        """Dark king with h8 rook and clear path should have g8 as a valid move."""
         board = empty_board()
         board.set_piece(0, 4, 'kd')
         board.set_piece(0, 7, 'rd')
@@ -39,6 +46,7 @@ class TestCastlingValidation:
         assert (0, 6) in moves
 
     def test_queenside_castle_dark(self):
+        """Dark king with a8 rook and clear path should have c8 as a valid move."""
         board = empty_board()
         board.set_piece(0, 4, 'kd')
         board.set_piece(0, 0, 'rd')
@@ -47,6 +55,7 @@ class TestCastlingValidation:
         assert (0, 2) in moves
 
     def test_cannot_castle_after_king_moved(self):
+        """Castling should not be available after the king has previously moved."""
         board = empty_board()
         board.set_piece(7, 4, 'kl')
         board.set_piece(7, 7, 'rl')
@@ -57,6 +66,7 @@ class TestCastlingValidation:
         assert (7, 6) not in moves
 
     def test_cannot_castle_after_rook_moved(self):
+        """Castling should not be available after the relevant rook has previously moved."""
         board = empty_board()
         board.set_piece(7, 4, 'kl')
         board.set_piece(7, 7, 'rl')
@@ -67,6 +77,7 @@ class TestCastlingValidation:
         assert (7, 6) not in moves
 
     def test_cannot_castle_with_piece_in_way_kingside(self):
+        """Kingside castling must not be allowed when a piece occupies f1."""
         board = empty_board()
         board.set_piece(7, 4, 'kl')
         board.set_piece(7, 7, 'rl')
@@ -76,6 +87,7 @@ class TestCastlingValidation:
         assert (7, 6) not in moves
 
     def test_cannot_castle_with_piece_in_way_queenside(self):
+        """Queenside castling must not be allowed when a piece occupies b1."""
         board = empty_board()
         board.set_piece(7, 4, 'kl')
         board.set_piece(7, 0, 'rl')
@@ -85,6 +97,7 @@ class TestCastlingValidation:
         assert (7, 2) not in moves
 
     def test_cannot_castle_while_in_check(self):
+        """Castling must not be allowed when the king is currently in check."""
         board = empty_board()
         board.set_piece(7, 4, 'kl')
         board.set_piece(7, 7, 'rl')
@@ -94,6 +107,7 @@ class TestCastlingValidation:
         assert (7, 6) not in moves
 
     def test_cannot_castle_through_check(self):
+        """Castling must not be allowed when the king would pass through an attacked square."""
         board = empty_board()
         board.set_piece(7, 4, 'kl')
         board.set_piece(7, 7, 'rl')
@@ -104,6 +118,7 @@ class TestCastlingValidation:
         assert (7, 6) not in moves
 
     def test_cannot_castle_into_check(self):
+        """Castling must not be allowed when the king's destination square is attacked."""
         board = empty_board()
         board.set_piece(7, 4, 'kl')
         board.set_piece(7, 7, 'rl')
@@ -114,7 +129,10 @@ class TestCastlingValidation:
 
 
 class TestCastlingExecution:
+    """Tests that execute_move correctly repositions king and rook during castling."""
+
     def test_kingside_castle_moves_rook(self):
+        """Light kingside castle should place king on g1, rook on f1, vacate e1 and h1."""
         board = empty_board()
         board.set_piece(7, 4, 'kl')
         board.set_piece(7, 7, 'rl')
@@ -125,6 +143,7 @@ class TestCastlingExecution:
         assert board.get_piece(7, 4) == ''
 
     def test_queenside_castle_moves_rook(self):
+        """Light queenside castle should place king on c1, rook on d1, vacate e1 and a1."""
         board = empty_board()
         board.set_piece(7, 4, 'kl')
         board.set_piece(7, 0, 'rl')
@@ -135,6 +154,7 @@ class TestCastlingExecution:
         assert board.get_piece(7, 4) == ''
 
     def test_dark_kingside_castle(self):
+        """Dark kingside castle should place king on g8 and rook on f8."""
         board = empty_board()
         board.set_piece(0, 4, 'kd')
         board.set_piece(0, 7, 'rd')
@@ -144,6 +164,7 @@ class TestCastlingExecution:
         assert board.get_piece(0, 7) == ''
 
     def test_dark_queenside_castle(self):
+        """Dark queenside castle should place king on c8 and rook on d8."""
         board = empty_board()
         board.set_piece(0, 4, 'kd')
         board.set_piece(0, 0, 'rd')

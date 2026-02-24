@@ -1,4 +1,6 @@
 """Integration tests that simulate multi-move games to verify state consistency."""
+import copy
+
 from pgchess.state.game_state import GameState
 from pgchess.state_manager import StateManager
 from pgchess.state.move_validator import is_in_check, is_in_checkmate, is_in_stalemate
@@ -44,6 +46,7 @@ class TestMultiMoveGame:
     """Play through a real opening (Ruy Lopez) and verify moves at each step."""
 
     def test_ruy_lopez_opening(self):
+        """Play through the Ruy Lopez opening moves and verify piece positions and mobility."""
         engine = StateManager()
 
         # 1. e4
@@ -131,6 +134,7 @@ class TestPawnCapturesAfterMultipleMoves:
     """Specifically test that pawn captures work correctly after several moves."""
 
     def test_pawn_capture_available_midgame(self):
+        """Pawn on e4 should be able to capture and advance after the Scandinavian Defense."""
         engine = StateManager()
 
         # 1. e4 d5 (Scandinavian Defense)
@@ -164,6 +168,7 @@ class TestPawnCapturesAfterMultipleMoves:
         assert (3, 4) in pawn_moves, "Pawn should be able to capture on e5"
 
     def test_dark_pawn_capture_after_several_moves(self):
+        """Dark pawn on e5 should be able to capture d4 after white plays d4."""
         engine = StateManager()
 
         # 1. e4 e5 2. d4
@@ -180,6 +185,7 @@ class TestBishopSlidingAfterMultipleMoves:
     """Verify bishops maintain full diagonal range throughout the game."""
 
     def test_bishop_full_diagonal_midgame(self):
+        """Bishop on c4 should slide along all four diagonals after e4 e5 Bc4 Nf6."""
         engine = StateManager()
 
         # 1. e4 e5 2. Bc4
@@ -248,6 +254,7 @@ class TestKnightMovesAfterMultipleMoves:
     """Verify knights have correct moves after several game turns."""
 
     def test_knight_moves_midgame(self):
+        """Knight on c6 should have valid moves including a5 and capturing d4."""
         engine = StateManager()
 
         # 1. e4 e5 2. Nf3 Nc6 3. d4
@@ -430,7 +437,6 @@ class TestBoardStateConsistency:
         simulate_drag_move(engine, 'nl', 7, 6, 5, 5)
 
         # Snapshot the board
-        import copy
         board_before = copy.deepcopy(engine.get_state()._board)
 
         # Call checkmate and stalemate detection (these iterate the board)
@@ -448,7 +454,6 @@ class TestBoardStateConsistency:
         simulate_drag_move(engine, 'pl', 6, 4, 4, 4)
         simulate_drag_move(engine, 'pd', 1, 4, 3, 4)
 
-        import copy
         board_before = copy.deepcopy(engine.get_state()._board)
 
         # Get valid moves for several pieces (simulating drag_start behavior)
@@ -467,6 +472,7 @@ class TestEnPassantMultiMove:
     """Verify en passant works correctly in a real game sequence."""
 
     def test_en_passant_available_after_double_push(self):
+        """En passant target should be set and the capture available after a double pawn push."""
         engine = StateManager()
 
         # 1. e4 d5 2. e5 f5 (dark double-pushes f pawn next to white e5 pawn)
@@ -492,6 +498,7 @@ class TestEnPassantMultiMove:
         assert (2, 4) in e5_moves, "Normal advance should also be available"
 
     def test_en_passant_expires_after_one_move(self):
+        """En passant opportunity should be cleared after one move passes without taking it."""
         engine = StateManager()
 
         # 1. e4 Nf6 2. e5 d5 3. Nf3 (white doesn't take en passant)
