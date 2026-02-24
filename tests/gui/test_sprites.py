@@ -1,4 +1,4 @@
-"""Tests for pychess.gui.sprites: sprite loading, caching, and scaling."""
+"""Tests for pgchess.gui.sprites: sprite loading, caching, and scaling."""
 from unittest.mock import patch, MagicMock
 
 import pygame
@@ -14,8 +14,8 @@ class TestLoadSprite:
         mock_surface = MagicMock()
         mock_surface.convert_alpha.return_value = mock_surface
 
-        with patch('pychess.gui.sprites.get_resource_path', return_value='/resolved/img.png'):
-            with patch('pychess.gui.sprites.pygame.image.load', return_value=mock_surface) as mock_load:
+        with patch('pgchess.gui.sprites.get_resource_path', return_value='/resolved/img.png'):
+            with patch('pgchess.gui.sprites.pygame.image.load', return_value=mock_surface) as mock_load:
                 result = _load_sprite('assets/images/img.png')
                 mock_load.assert_called_once_with('/resolved/img.png')
                 mock_surface.convert_alpha.assert_called_once()
@@ -30,8 +30,8 @@ class TestSpritesInit:
         mock_surface = MagicMock()
         mock_surface.convert_alpha.return_value = mock_surface
 
-        with patch('pychess.gui.sprites.pygame.image.load', return_value=mock_surface):
-            with patch('pychess.gui.sprites.get_resource_path', side_effect=lambda p: p):
+        with patch('pgchess.gui.sprites.pygame.image.load', return_value=mock_surface):
+            with patch('pgchess.gui.sprites.get_resource_path', side_effect=lambda p: p):
                 window = MagicMock(spec=pygame.Surface)
                 sprites = Sprites(window)
 
@@ -49,12 +49,12 @@ class TestScaleSprite:
         mock_surface.convert_alpha.return_value = mock_surface
         mock_scaled = MagicMock()
 
-        with patch('pychess.gui.sprites.pygame.image.load', return_value=mock_surface):
-            with patch('pychess.gui.sprites.get_resource_path', side_effect=lambda p: p):
+        with patch('pgchess.gui.sprites.pygame.image.load', return_value=mock_surface):
+            with patch('pgchess.gui.sprites.get_resource_path', side_effect=lambda p: p):
                 window = MagicMock(spec=pygame.Surface)
                 sprites = Sprites(window)
 
-        with patch('pychess.gui.sprites.pygame.transform.smoothscale', return_value=mock_scaled) as mock_scale:
+        with patch('pgchess.gui.sprites.pygame.transform.smoothscale', return_value=mock_scaled) as mock_scale:
             result = sprites.scale_sprite(mock_surface, 82.5, 82.5)
             mock_scale.assert_called_once_with(mock_surface, (82, 82))
             assert result == mock_scaled
@@ -64,12 +64,12 @@ class TestScaleSprite:
         mock_surface = MagicMock()
         mock_surface.convert_alpha.return_value = mock_surface
 
-        with patch('pychess.gui.sprites.pygame.image.load', return_value=mock_surface):
-            with patch('pychess.gui.sprites.get_resource_path', side_effect=lambda p: p):
+        with patch('pgchess.gui.sprites.pygame.image.load', return_value=mock_surface):
+            with patch('pgchess.gui.sprites.get_resource_path', side_effect=lambda p: p):
                 window = MagicMock(spec=pygame.Surface)
                 sprites = Sprites(window)
 
-        with patch('pychess.gui.sprites.pygame.transform.smoothscale') as mock_scale:
+        with patch('pgchess.gui.sprites.pygame.transform.smoothscale') as mock_scale:
             sprites.scale_sprite(mock_surface, 75, 75)
             mock_scale.assert_called_once_with(mock_surface, (75, 75))
 
@@ -82,8 +82,8 @@ class TestGetSpriteFromCode:
         mock_surface = MagicMock()
         mock_surface.convert_alpha.return_value = mock_surface
 
-        with patch('pychess.gui.sprites.pygame.image.load', return_value=mock_surface):
-            with patch('pychess.gui.sprites.get_resource_path', side_effect=lambda p: p):
+        with patch('pgchess.gui.sprites.pygame.image.load', return_value=mock_surface):
+            with patch('pgchess.gui.sprites.get_resource_path', side_effect=lambda p: p):
                 window = MagicMock(spec=pygame.Surface)
                 return Sprites(window)
 

@@ -1,4 +1,4 @@
-"""Tests for pychess.gui.gui_utils: resource path resolution and draw helpers."""
+"""Tests for pgchess.gui.gui_utils: resource path resolution and draw helpers."""
 import sys
 from unittest.mock import patch, MagicMock, call
 
@@ -36,14 +36,14 @@ class TestDrawBoard:
     def test_draws_64_squares(self):
         """draw_board should call pygame.draw.rect exactly 64 times."""
         window = MagicMock(spec=pygame.Surface)
-        with patch('pychess.gui.gui_utils.pygame.draw.rect') as mock_rect:
+        with patch('pgchess.gui.gui_utils.pygame.draw.rect') as mock_rect:
             draw_board(window)
             assert mock_rect.call_count == 64
 
     def test_alternating_colors(self):
         """Light and dark squares should alternate in a checkerboard pattern."""
         window = MagicMock(spec=pygame.Surface)
-        with patch('pychess.gui.gui_utils.pygame.draw.rect') as mock_rect:
+        with patch('pgchess.gui.gui_utils.pygame.draw.rect') as mock_rect:
             draw_board(window)
             calls = mock_rect.call_args_list
 
@@ -59,7 +59,7 @@ class TestDrawBoard:
         """Each square rect should be positioned at (SQ_HEIGHT*y, SQ_HEIGHT*x)."""
         window = MagicMock(spec=pygame.Surface)
         sq = constants.SQ_HEIGHT
-        with patch('pychess.gui.gui_utils.pygame.draw.rect') as mock_rect:
+        with patch('pgchess.gui.gui_utils.pygame.draw.rect') as mock_rect:
             draw_board(window)
             calls = mock_rect.call_args_list
 
@@ -79,7 +79,7 @@ class TestDrawSolidRect:
         window = MagicMock(spec=pygame.Surface)
         mock_surface = MagicMock()
 
-        with patch('pychess.gui.gui_utils.pygame.Surface', return_value=mock_surface) as mock_ctor:
+        with patch('pgchess.gui.gui_utils.pygame.Surface', return_value=mock_surface) as mock_ctor:
             draw_solid_rect(window, 100, 50, 10, 20, (255, 0, 0), 128)
             mock_ctor.assert_called_once_with((100, 50))
 
@@ -88,7 +88,7 @@ class TestDrawSolidRect:
         window = MagicMock(spec=pygame.Surface)
         mock_surface = MagicMock()
 
-        with patch('pychess.gui.gui_utils.pygame.Surface', return_value=mock_surface):
+        with patch('pgchess.gui.gui_utils.pygame.Surface', return_value=mock_surface):
             draw_solid_rect(window, 100, 50, 10, 20, (255, 0, 0), 128)
             mock_surface.set_alpha.assert_called_once_with(128)
             mock_surface.fill.assert_called_once_with((255, 0, 0))
@@ -98,7 +98,7 @@ class TestDrawSolidRect:
         window = MagicMock(spec=pygame.Surface)
         mock_surface = MagicMock()
 
-        with patch('pychess.gui.gui_utils.pygame.Surface', return_value=mock_surface):
+        with patch('pgchess.gui.gui_utils.pygame.Surface', return_value=mock_surface):
             draw_solid_rect(window, 100, 50, 10, 20, (255, 0, 0))
             window.blit.assert_called_once_with(mock_surface, (20, 10))
 
@@ -107,7 +107,7 @@ class TestDrawSolidRect:
         window = MagicMock(spec=pygame.Surface)
         mock_surface = MagicMock()
 
-        with patch('pychess.gui.gui_utils.pygame.Surface', return_value=mock_surface):
+        with patch('pgchess.gui.gui_utils.pygame.Surface', return_value=mock_surface):
             draw_solid_rect(window, 100, 50, 10, 20, (255, 0, 0))
             mock_surface.set_alpha.assert_called_once_with(255)
 
@@ -120,8 +120,8 @@ class TestDrawSolidCircle:
         window = MagicMock(spec=pygame.Surface)
         mock_surface = MagicMock()
 
-        with patch('pychess.gui.gui_utils.pygame.Surface', return_value=mock_surface):
-            with patch('pychess.gui.gui_utils.pygame.draw.circle') as mock_circle:
+        with patch('pgchess.gui.gui_utils.pygame.Surface', return_value=mock_surface):
+            with patch('pgchess.gui.gui_utils.pygame.draw.circle') as mock_circle:
                 draw_solid_circle(window, 80, 80, 10.0, 30, 40, (0, 255, 0), 200)
                 mock_circle.assert_called_once_with(mock_surface, (0, 255, 0), (40.0, 40.0), 10.0)
 
@@ -130,8 +130,8 @@ class TestDrawSolidCircle:
         window = MagicMock(spec=pygame.Surface)
         mock_surface = MagicMock()
 
-        with patch('pychess.gui.gui_utils.pygame.Surface', return_value=mock_surface):
-            with patch('pychess.gui.gui_utils.pygame.draw.circle') as mock_circle:
+        with patch('pgchess.gui.gui_utils.pygame.Surface', return_value=mock_surface):
+            with patch('pgchess.gui.gui_utils.pygame.draw.circle') as mock_circle:
                 draw_solid_circle(window, 60, 40, 5.0, 0, 0, (0, 0, 0))
                 center_arg = mock_circle.call_args[0][2]
                 assert center_arg == (30.0, 20.0)
@@ -141,7 +141,7 @@ class TestDrawSolidCircle:
         window = MagicMock(spec=pygame.Surface)
         mock_surface = MagicMock()
 
-        with patch('pychess.gui.gui_utils.pygame.Surface', return_value=mock_surface):
-            with patch('pychess.gui.gui_utils.pygame.draw.circle'):
+        with patch('pgchess.gui.gui_utils.pygame.Surface', return_value=mock_surface):
+            with patch('pgchess.gui.gui_utils.pygame.draw.circle'):
                 draw_solid_circle(window, 80, 80, 10.0, 30, 40, (0, 255, 0))
                 window.blit.assert_called_once_with(mock_surface, (40, 30))

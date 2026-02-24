@@ -1,6 +1,6 @@
 # PGChess
 
-Python implementation of chess using PyGame - Incomplete !
+Python chess GUI using PyGame and Sunfish
 
 ### To Setup
 

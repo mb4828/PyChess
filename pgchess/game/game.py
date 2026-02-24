@@ -39,23 +39,43 @@ class Game:
         if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
             self._dragging = True
             y, x = event.pos
-            self.drag_start(x, y)
+            self._drag_start(x, y)
         elif event.type == pygame.MOUSEMOTION and self._dragging:
             y, x = event.pos
-            self.drag_continue(x, y)
+            self._drag_continue(x, y)
         elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
             self._dragging = False
-            self.drag_stop()
+            self._drag_stop()
 
-    def drag_start(self, x: int, y: int) -> None:
+    def complete_promotion(self, piece_type: str) -> None:
+        """Handle pawn promotion after the player selects a piece type.
+
+        :param piece_type: The piece type character ('q', 'r', 'b', or 'n')
+        """
+        if self.pending_promotion:
+            px, py = self.pending_promotion
+            self.state.promote_pawn(px, py, piece_type)
+            self.pending_promotion = None
+            self._on_move_complete(False)
+
+    def draw(self) -> None:
+        """Render the board, pieces, and overlays for the current frame."""
+        self.gui.draw_board()
+        self.gui.draw_pieces(self.state.get_state(), constants.BOARD_WIDTH, constants.BOARD_HEIGHT)
+        self.gui.draw_overlays(
+            self.drag_piece, self.drag_piece_start_sq,
+            self.drag_piece_cursor_sq, self.drag_piece_cursor_pos,
+            self.drag_piece_valid_moves,
+        )
+
+    def _drag_start(self, x: int, y: int) -> None:
         """Begin dragging a piece from the square under the cursor.
 
         :param x: Mouse x coordinate (pixels)
         :param y: Mouse y coordinate (pixels)
         """
         self.drag_piece = ''
-        sqx, sqy = floor(x / constants.SQ_HEIGHT), floor(y /
-                                                         constants.SQ_HEIGHT)
+        sqx, sqy = floor(x / constants.SQ_HEIGHT), floor(y / constants.SQ_HEIGHT)
         piece = self.state.get_piece(sqx, sqy)
         if piece and self.state.is_turn(piece):
             self.state.get_state().clear_square(sqx, sqy)
@@ -64,19 +84,18 @@ class Game:
             self.drag_piece_cursor_sq = (sqx, sqy)
             self.drag_piece_valid_moves = self.state.get_valid_moves(self.drag_piece, sqx, sqy)
 
-    def drag_continue(self, x: int, y: int) -> None:
+    def _drag_continue(self, x: int, y: int) -> None:
         """Update the drag position as the cursor moves.
 
         :param x: Mouse x coordinate (pixels)
         :param y: Mouse y coordinate (pixels)
         """
         if self.drag_piece:
-            sqx, sqy = floor(
-                x / constants.SQ_HEIGHT), floor(y / constants.SQ_HEIGHT)
+            sqx, sqy = floor(x / constants.SQ_HEIGHT), floor(y / constants.SQ_HEIGHT)
             self.drag_piece_cursor_sq = (sqx, sqy)
             self.drag_piece_cursor_pos = (x, y)
 
-    def drag_stop(self) -> None:
+    def _drag_stop(self) -> None:
         """Drop the held piece. Execute the move if valid, otherwise return it."""
         if not self.drag_piece:
             return
@@ -115,17 +134,6 @@ class Game:
         sqx, sqy = self.drag_piece_start_sq
         self.state.get_state().set_piece(sqx, sqy, self.drag_piece)
 
-    def complete_promotion(self, piece_type: str) -> None:
-        """Handle pawn promotion after the player selects a piece type.
-
-        :param piece_type: The piece type character ('q', 'r', 'b', or 'n')
-        """
-        if self.pending_promotion:
-            px, py = self.pending_promotion
-            self.state.promote_pawn(px, py, piece_type)
-            self.pending_promotion = None
-            self._on_move_complete(False)
-
     def _on_move_complete(self, is_capture: bool) -> None:
         """Hook called after a valid move is executed.
 
@@ -153,13 +161,3 @@ class Game:
             self.gui.sounds.play_piece_check()
         else:
             self.gui.sounds.play_piece_move(is_capture, 'd' in self.drag_piece)
-
-    def draw(self) -> None:
-        """Render the board, pieces, and overlays for the current frame."""
-        self.gui.draw_board()
-        self.gui.draw_pieces(self.state.get_state(), constants.BOARD_WIDTH, constants.BOARD_HEIGHT)
-        self.gui.draw_overlays(
-            self.drag_piece, self.drag_piece_start_sq,
-            self.drag_piece_cursor_sq, self.drag_piece_cursor_pos,
-            self.drag_piece_valid_moves,
-        )

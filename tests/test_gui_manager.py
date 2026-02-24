@@ -1,4 +1,4 @@
-"""Tests for pychess.gui.gui_manager: the GUI manager class."""
+"""Tests for pgchess.gui.gui_manager: the GUI manager class."""
 from math import floor
 from unittest.mock import patch, MagicMock
 
@@ -14,8 +14,8 @@ def _make_gui():
     mock_surface = MagicMock()
     mock_surface.convert_alpha.return_value = mock_surface
 
-    with patch('pychess.gui.sprites.pygame.image.load', return_value=mock_surface):
-        with patch('pychess.gui.sprites.get_resource_path', side_effect=lambda p: p):
+    with patch('pgchess.gui.sprites.pygame.image.load', return_value=mock_surface):
+        with patch('pgchess.gui.sprites.get_resource_path', side_effect=lambda p: p):
             from pgchess.gui_manager import GUIManager
             window = MagicMock(spec=pygame.Surface)
             gui = GUIManager(window, MagicMock(spec=Sounds))
@@ -191,7 +191,7 @@ class TestDrawSquareHighlight:
         gui, _ = _make_gui()
         sq = constants.SQ_HEIGHT
 
-        with patch('pychess.gui_manager.draw_solid_rect') as mock_rect:
+        with patch('pgchess.gui_manager.draw_solid_rect') as mock_rect:
             gui.draw_square_highlight(3, 5)
             mock_rect.assert_called_once_with(
                 gui._window, sq, sq,
@@ -208,7 +208,7 @@ class TestDrawMoveHint:
         gui, _ = _make_gui()
         sq = constants.SQ_HEIGHT
 
-        with patch('pychess.gui_manager.draw_solid_circle') as mock_circle:
+        with patch('pgchess.gui_manager.draw_solid_circle') as mock_circle:
             gui.draw_move_hint(2, 6)
             mock_circle.assert_called_once_with(
                 gui._window, sq, sq,

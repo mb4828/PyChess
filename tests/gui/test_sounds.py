@@ -1,4 +1,4 @@
-"""Tests for pychess.gui.sounds: sound effect playback routing."""
+"""Tests for pgchess.gui.sounds: sound effect playback routing."""
 from unittest.mock import patch, MagicMock
 
 from pgchess import constants
@@ -13,8 +13,8 @@ class TestSoundsPlay:
         sounds = Sounds()
         mock_sound_instance = MagicMock()
 
-        with patch('pychess.gui.sounds.pygame.mixer.Sound', return_value=mock_sound_instance) as mock_sound:
-            with patch('pychess.gui.sounds.get_resource_path', return_value='/resolved/path.wav') as mock_path:
+        with patch('pgchess.gui.sounds.pygame.mixer.Sound', return_value=mock_sound_instance) as mock_sound:
+            with patch('pgchess.gui.sounds.get_resource_path', return_value='/resolved/path.wav') as mock_path:
                 sounds._play('assets/sounds/test.wav')
                 mock_path.assert_called_once_with('assets/sounds/test.wav')
                 mock_sound.assert_called_once_with('/resolved/path.wav')

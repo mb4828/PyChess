@@ -7,6 +7,7 @@ import pygame
 
 from pgchess import constants
 from pgchess.game.game import Game
+from pgchess.game.pvc_game import PVCGame
 from pgchess.game.pvp_game import PVPGame
 from pgchess.gui.gui_utils import get_resource_path
 from pgchess.gui.menus import StartMenu, PauseMenu, GameOverMenu, PromotionMenu
@@ -74,7 +75,7 @@ class GameManager:
 
         Called once from ``__init__`` after the display is ready.
         """
-        self._start_menu = StartMenu(self._start_pvp_game, self._quit_game, self._sounds)
+        self._start_menu = StartMenu(self._start_pvp_game, self._start_pvc_game, self._quit_game, self._sounds)
         self._pause_menu = PauseMenu(self._resume_game, self._resign_game, self._sounds)
         self._game_over_menu = GameOverMenu(self._resign_game, self._sounds)
         self._promotion_menu = PromotionMenu(self._on_promotion_select, self._sounds)
@@ -82,6 +83,11 @@ class GameManager:
     def _start_pvp_game(self) -> None:
         """Initialise and start a new player-vs-player game."""
         self._game = PVPGame(self._window, self._sounds)
+        self._app_state = AppState.PLAYER_MOVE
+
+    def _start_pvc_game(self) -> None:
+        """Initialise and start a new player-vs-computer game."""
+        self._game = PVCGame(self._window, self._sounds)
         self._app_state = AppState.PLAYER_MOVE
 
     def _resume_game(self) -> None:

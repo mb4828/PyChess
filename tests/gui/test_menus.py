@@ -1,4 +1,4 @@
-"""Tests for pychess.gui.menus: menu construction and configuration."""
+"""Tests for pgchess.gui.menus: menu construction and configuration."""
 import os
 from unittest.mock import patch, MagicMock, call
 
@@ -17,7 +17,7 @@ class TestDrawOverlay:
         """_draw_overlay should draw a rect covering the entire window."""
         window = MagicMock(spec=pygame.Surface)
 
-        with patch('pychess.gui.menus.draw_solid_rect') as mock_rect:
+        with patch('pgchess.gui.menus.draw_solid_rect') as mock_rect:
             _draw_overlay(window)
             mock_rect.assert_called_once_with(
                 window,
@@ -30,27 +30,28 @@ class TestDrawOverlay:
 class TestStartMenu:
     """Test the start menu construction."""
 
-    @patch('pychess.gui.menus.get_resource_path', side_effect=lambda p: p)
+    @patch('pgchess.gui.menus.get_resource_path', side_effect=lambda p: p)
     def test_has_play_and_quit_buttons(self, _mock_path):
-        """StartMenu should have Play and Quit buttons."""
+        """StartMenu should have '1 Player', '2 Players', and 'Quit' buttons."""
         on_start = MagicMock()
         on_quit = MagicMock()
-        menu = StartMenu(on_start, on_quit, MagicMock(spec=Sounds))
+        menu = StartMenu(on_start, MagicMock(), on_quit, MagicMock(spec=Sounds))
 
         widgets = menu.menu.get_widgets()
         labels = [w.get_title() for w in widgets if hasattr(w, 'get_title')]
-        assert 'Play' in labels
+        assert '1 Player' in labels
+        assert '2 Players' in labels
         assert 'Quit' in labels
 
-    @patch('pychess.gui.menus.get_resource_path', side_effect=lambda p: p)
+    @patch('pgchess.gui.menus.get_resource_path', side_effect=lambda p: p)
     def test_draw_renders_board_overlay_and_menu(self, _mock_path):
         """StartMenu.draw should render board background, overlay, and menu."""
-        menu = StartMenu(MagicMock(), MagicMock(), MagicMock(spec=Sounds))
+        menu = StartMenu(MagicMock(), MagicMock(), MagicMock(), MagicMock(spec=Sounds))
         window = MagicMock(spec=pygame.Surface)
         events = []
 
-        with patch('pychess.gui.menus.draw_board') as mock_board:
-            with patch('pychess.gui.menus._draw_overlay') as mock_overlay:
+        with patch('pgchess.gui.menus.draw_board') as mock_board:
+            with patch('pgchess.gui.menus._draw_overlay') as mock_overlay:
                 with patch.object(menu.menu, 'update') as mock_update:
                     with patch.object(menu.menu, 'draw') as mock_draw:
                         menu.draw(window, events)
@@ -77,7 +78,7 @@ class TestPauseMenu:
         menu = PauseMenu(MagicMock(), MagicMock(), MagicMock(spec=Sounds))
         window = MagicMock(spec=pygame.Surface)
 
-        with patch('pychess.gui.menus._draw_overlay') as mock_overlay:
+        with patch('pgchess.gui.menus._draw_overlay') as mock_overlay:
             with patch.object(menu.menu, 'update'):
                 with patch.object(menu.menu, 'draw'):
                     menu.draw(window, [])

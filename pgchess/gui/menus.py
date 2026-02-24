@@ -83,11 +83,18 @@ class Menu:
 class StartMenu(Menu):
     """Main menu shown when the game launches."""
 
-    def __init__(self, on_start_press: Callable, on_quit_press: Callable, sounds: Sounds) -> None:
+    def __init__(
+        self,
+        on_start_pvp_press: Callable,
+        on_start_pvc_press: Callable,
+        on_quit_press: Callable,
+        sounds: Sounds,
+    ) -> None:
         super().__init__(sounds)
-        self.menu = pygame_menu.Menu('', 300, 250, theme=MENU_THEME, mouse_motion_selection=True)
+        self.menu = pygame_menu.Menu('', 300, 280, theme=MENU_THEME, mouse_motion_selection=True)
         self.menu.add.image(get_resource_path(constants.PATH_LOGO), scale=(.6, .6), scale_smooth=True)
-        self._add_button('Play', on_start_press)
+        self._add_button('1 Player', on_start_pvc_press)
+        self._add_button('2 Players', on_start_pvp_press)
         self._add_button('Quit', on_quit_press, True)
         self.menu.add.vertical_margin(10)
         self.menu.add.label('\u00a92026 Matt Brauner', font_size=12, font_color=(120, 120, 120, 255))
