@@ -131,13 +131,13 @@ class StartMenu(Menu):
         self.menu.update(events)
         self.menu.draw(window)
 
-    def _on_diff_change(self, value: Tuple[str, Difficulty], selected: int) -> None:
+    def _on_diff_change(self, value: Tuple, selected: Difficulty) -> None:
         """Update the selected difficulty when the selector changes.
 
-        :param value: Tuple of ``(label, Difficulty)`` for the newly selected item
-        :param selected: Index of the newly selected item
+        :param value: Tuple of ``(selected_item, selected_index)`` from pygame_menu
+        :param selected: The Difficulty value unpacked from the selected item
         """
-        self._selected_difficulty = value[1]
+        self._selected_difficulty = selected
 
     def _start_pvc_with_diff(self) -> None:
         """Start a PvC game using the currently selected difficulty."""

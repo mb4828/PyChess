@@ -6,6 +6,8 @@
 
 Python chess GUI using PyGame and Sunfish
 
+![Screenshot](assets/images/screenshot1.png)
+
 ### To Setup
 
 ```
