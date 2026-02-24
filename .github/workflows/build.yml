@@ -1,0 +1,103 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build Windows executable
+        shell: pwsh
+        run: |
+          $fonts = python -c "import pygame_menu, os; print(os.path.join(os.path.dirname(pygame_menu.__file__), 'resources', 'fonts'))"
+          pyinstaller --onefile main.py `
+            --add-data "assets/images/*;assets/images" `
+            --add-data "assets/sounds/*;assets/sounds" `
+            --add-data "${fonts}/*;pygame_menu/resources/fonts" `
+            --name PGChess `
+            --icon assets/images/pgchess.ico `
+            --noconsole
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PGChess-windows
+          path: dist/PGChess.exe
+
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Build macOS app
+        run: |
+          FONTS=$(python -c "import pygame_menu, os; print(os.path.join(os.path.dirname(pygame_menu.__file__), 'resources', 'fonts'))")
+          pyinstaller --windowed main.py \
+            --add-data "assets/images/*:assets/images" \
+            --add-data "assets/sounds/*:assets/sounds" \
+            --add-data "${FONTS}/*:pygame_menu/resources/fonts" \
+            --name PGChess \
+            --icon assets/images/pgchess.png
+          rm -rf dist/PGChess
+          cd dist && zip -r PGChess-macOS.zip PGChess.app
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: PGChess-macos
+          path: dist/PGChess-macOS.zip
+
+  create-release:
+    needs: [build-windows, build-macos]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Get version
+        id: version
+        run: |
+          VERSION=$(python -c "from version import VERSION; print(VERSION)")
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: PGChess-windows
+          path: artifacts/
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: PGChess-macos
+          path: artifacts/
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.version.outputs.VERSION }}
+          name: PGChess v${{ steps.version.outputs.VERSION }}
+          files: |
+            artifacts/PGChess.exe
+            artifacts/PGChess-macOS.zip
+          generate_release_notes: true

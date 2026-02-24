@@ -1,4 +1,9 @@
-# PGChess
+![PGChess](assets/images/pgchess-full.png)
+
+[![Build](https://github.com/mb4828/PGChess/actions/workflows/build.yml/badge.svg)](https://github.com/mb4828/PGChess/actions/workflows/build.yml)
+[![Tests](https://github.com/mb4828/PGChess/actions/workflows/test.yml/badge.svg)](https://github.com/mb4828/PGChess/actions/workflows/test.yml)
+[![Coverage](https://codecov.io/gh/mb4828/PGChess/graph/badge.svg)](https://codecov.io/gh/mb4828/PGChess)
+[![Version](https://img.shields.io/github/v/release/mb4828/PGChess)](https://github.com/mb4828/PGChess/releases)
 
 Python chess GUI using PyGame and Sunfish
 
@@ -34,3 +39,16 @@ python build.py
 This will create an executable in the `dist/` folder:
 - **Windows:** Single-file executable `dist/PGChess.exe`
 - **macOS:** App bundle `dist/PGChess.app` (drag to Applications folder)
+
+### To Release
+
+1. Bump `VERSION` in `version.py`
+2. Commit and push to `main`
+3. Create and push a version tag:
+
+```bash
+git tag v2026.2.1
+git push origin v2026.2.1
+```
+
+This triggers the GitHub Actions build workflow, which builds both platforms and creates a GitHub Release automatically.

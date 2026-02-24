@@ -1,7 +1,6 @@
 """Game-wide constants for PGChess: window settings, board dimensions, asset paths, and custom events."""
 import pygame
 
-VERSION = '2026.2.1'
 
 # ==== Window ==== #
 
