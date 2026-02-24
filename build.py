@@ -26,6 +26,12 @@ def clean_build() -> None:
             os.remove(file_name)
 
 
+def _fonts_path() -> str:
+    """Return the absolute path to pygame_menu's bundled fonts directory."""
+    import pygame_menu
+    return os.path.join(os.path.dirname(pygame_menu.__file__), 'resources', 'fonts')
+
+
 def build_windows() -> None:
     """Build a single-file Windows executable using PyInstaller."""
     logger.info("Building for Windows...")
@@ -33,10 +39,9 @@ def build_windows() -> None:
         'pyinstaller',
         '--onefile',
         'main.py',
-        '--paths', 'venv/Lib/site-packages',
         '--add-data', 'assets/images:assets/images',
         '--add-data', 'assets/sounds:assets/sounds',
-        '--add-data', 'venv/Lib/site-packages/pygame_menu/resources/fonts:pygame_menu/resources/fonts',
+        '--add-data', f'{_fonts_path()}:pygame_menu/resources/fonts',
         '--name', 'PGChess',
         '--icon', 'assets/images/pgchess.ico',
         '--noconsole',
@@ -52,10 +57,9 @@ def build_macos() -> None:
         'pyinstaller',
         '--windowed',
         'main.py',
-        '--paths', 'venv/lib/python3.11/site-packages',
         '--add-data', 'assets/images:assets/images',
         '--add-data', 'assets/sounds:assets/sounds',
-        '--add-data', 'venv/lib/python3.11/site-packages/pygame_menu/resources/fonts:pygame_menu/resources/fonts',
+        '--add-data', f'{_fonts_path()}:pygame_menu/resources/fonts',
         '--name', 'PGChess',
         '--icon', 'assets/images/pgchess.png',
     ]
