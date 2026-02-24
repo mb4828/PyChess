@@ -9,6 +9,8 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
 
@@ -28,7 +30,29 @@ jobs:
           PYGAME_HIDE_SUPPORT_PROMPT: 1
         run: python -m pytest tests/ -v --cov=pgchess --cov-report=xml
 
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        with:
-          file: coverage.xml
+      - name: Generate coverage badge JSON
+        if: github.ref == 'refs/heads/main'
+        run: |
+          python -c "
+          import xml.etree.ElementTree as ET, json
+          rate = float(ET.parse('coverage.xml').getroot().attrib['line-rate']) * 100
+          color = 'red' if rate < 50 else 'orange' if rate < 75 else 'yellow' if rate < 90 else 'brightgreen'
+          json.dump({'schemaVersion': 1, 'label': 'coverage', 'message': f'{rate:.0f}%', 'color': color}, open('/tmp/coverage-badge.json', 'w'))
+          "
+
+      - name: Push badge to badges branch
+        if: github.ref == 'refs/heads/main'
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          if git ls-remote --exit-code origin badges > /dev/null 2>&1; then
+            git fetch origin badges --depth=1
+            git checkout badges
+          else
+            git checkout --orphan badges
+            git rm -rf . --quiet
+          fi
+          cp /tmp/coverage-badge.json coverage-badge.json
+          git add coverage-badge.json
+          git diff --staged --quiet || git commit -m "Update coverage badge [skip ci]"
+          git push origin badges

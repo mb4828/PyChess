@@ -2,7 +2,7 @@
 
 [![Build](https://github.com/mb4828/PGChess/actions/workflows/build.yml/badge.svg)](https://github.com/mb4828/PGChess/actions/workflows/build.yml)
 [![Tests](https://github.com/mb4828/PGChess/actions/workflows/test.yml/badge.svg)](https://github.com/mb4828/PGChess/actions/workflows/test.yml)
-[![Coverage](https://codecov.io/gh/mb4828/PGChess/graph/badge.svg)](https://codecov.io/gh/mb4828/PGChess)
+[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/mb4828/PGChess/badges/coverage-badge.json)](https://github.com/mb4828/PGChess/actions/workflows/test.yml)
 [![Version](https://img.shields.io/github/v/release/mb4828/PGChess)](https://github.com/mb4828/PGChess/releases)
 
 Python chess GUI using PyGame and Sunfish
@@ -25,7 +25,8 @@ venv/bin/python main.py
 ### To Test
 
 ```bash
-python -m pytest tests/ -v
+pip install pytest-cov
+python -m pytest tests/ -v --cov=pgchess --cov-report=term-missing
 ```
 
 ### To Build
