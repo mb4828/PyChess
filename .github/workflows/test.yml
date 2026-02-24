@@ -26,9 +26,16 @@ jobs:
           SDL_VIDEODRIVER: dummy
           SDL_AUDIODRIVER: dummy
           PYGAME_HIDE_SUPPORT_PROMPT: 1
-        run: python -m pytest tests/ -v --cov=pgchess --cov-report=term-missing
-
-      - name: Write coverage to job summary
         run: |
+          set -o pipefail
+          python -m pytest tests/ -v --cov=pgchess --cov-report=term-missing 2>&1 | tee /tmp/pytest-out.txt
+
+      - name: Write job summary
+        if: always()
+        run: |
+          echo "## Test Results" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          tail -1 /tmp/pytest-out.txt | sed 's/=//g; s/^ *//; s/ *$//' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
           echo "## Coverage" >> $GITHUB_STEP_SUMMARY
           python -m coverage report --format=markdown >> $GITHUB_STEP_SUMMARY
