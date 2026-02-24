@@ -1,7 +1,9 @@
 """Tests for pgchess.engine.sunfish_adapter.SunfishAdapter."""
 import pytest
+from unittest.mock import patch
 
 from pgchess.engine import sunfish
+from pgchess.engine.engine import Difficulty
 from pgchess.engine.sunfish_adapter import SunfishAdapter
 from pgchess.state.game_context import GameContext
 from pgchess.state.game_state import GameState
@@ -128,13 +130,42 @@ class TestMoveToLan:
         assert adapter._move_to_lan(move, was_rotated=False) == 'h1h8'
 
 
+class TestDifficulty:
+    @pytest.mark.parametrize("difficulty", [Difficulty.EASY, Difficulty.MEDIUM])
+    def test_returns_valid_move_for_difficulty(self, difficulty):
+        """get_best_move should return valid board coordinates for EASY and MEDIUM difficulty."""
+        adapter = SunfishAdapter(difficulty)
+        state = GameState()
+        context = GameContext()
+        context.switch_turn()
+        start_row, start_col, end_row, end_col, _ = adapter.get_best_move(state, context)
+        assert 0 <= start_row <= 7
+        assert 0 <= start_col <= 7
+        assert 0 <= end_row <= 7
+        assert 0 <= end_col <= 7
+
+    def test_blunder_path_returns_valid_move(self):
+        """When easy mode blunder triggers (random forced to 0.0), a valid non-null move is returned."""
+        adapter = SunfishAdapter(Difficulty.EASY)
+        state = GameState()
+        context = GameContext()
+        context.switch_turn()
+        with patch('pgchess.engine.sunfish_adapter.random.random', return_value=0.0):
+            start_row, start_col, end_row, end_col, _ = adapter.get_best_move(state, context)
+        assert 0 <= start_row <= 7
+        assert 0 <= start_col <= 7
+        assert 0 <= end_row <= 7
+        assert 0 <= end_col <= 7
+        assert (start_row, start_col) != (end_row, end_col), "Blunder must not return a null move"
+
+
 class TestGetBestMove:
     def test_returns_five_tuple(self, adapter):
         """get_best_move should always return a 5-element tuple."""
         state = GameState()
         context = GameContext()
         context.switch_turn()  # Black (computer) to move
-        result = adapter.get_best_move(state, context, move_time_seconds=0.1)
+        result = adapter.get_best_move(state, context)
         assert len(result) == 5
 
     def test_returns_valid_board_coordinates(self, adapter):
@@ -142,9 +173,7 @@ class TestGetBestMove:
         state = GameState()
         context = GameContext()
         context.switch_turn()  # Black to move
-        start_row, start_col, end_row, end_col, _ = adapter.get_best_move(
-            state, context, move_time_seconds=0.1
-        )
+        start_row, start_col, end_row, end_col, _ = adapter.get_best_move(state, context)
         assert 0 <= start_row <= 7
         assert 0 <= start_col <= 7
         assert 0 <= end_row <= 7
@@ -155,9 +184,7 @@ class TestGetBestMove:
         state = GameState()
         context = GameContext()
         context.switch_turn()  # Black to move
-        start_row, start_col, _, _, _ = adapter.get_best_move(
-            state, context, move_time_seconds=0.1
-        )
+        start_row, start_col, _, _, _ = adapter.get_best_move(state, context)
         piece = state.get_piece(start_row, start_col)
         assert piece.endswith('d'), f"Expected black piece at ({start_row}, {start_col}), got {piece!r}"
 
@@ -166,5 +193,5 @@ class TestGetBestMove:
         state = GameState()
         context = GameContext()
         context.switch_turn()
-        _, _, _, _, promo = adapter.get_best_move(state, context, move_time_seconds=0.1)
+        _, _, _, _, promo = adapter.get_best_move(state, context)
         assert promo == '' or (len(promo) == 1 and promo.islower())

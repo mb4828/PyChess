@@ -1,10 +1,10 @@
 """Sunfish chess engine adapter."""
 import logging
-import time
-from typing import Optional, Tuple
+import random
+from typing import Dict, Optional, Tuple
 
 from pgchess.engine import sunfish
-from pgchess.engine.engine import EngineAdapter, FENConverter
+from pgchess.engine.engine import EngineAdapter, FENConverter, Difficulty
 from pgchess.state.game_context import GameContext
 from pgchess.state.game_state import GameState
 
@@ -16,31 +16,34 @@ class SunfishAdapter(EngineAdapter):
 
     Converts PGChess game state to FEN, parses it into a sunfish
     :class:`~pgchess.engine.sunfish.Position`, runs iterative-deepening
-    search for the given time budget, and returns the best move as PGChess
-    board coordinates.
+    search to a difficulty-based depth limit, and returns the best move as
+    PGChess board coordinates.
 
     Because PGChess always has the computer playing black, the board is rotated
     180° before the search so that sunfish treats the computer's pieces as its
     own (uppercase). The resulting move indices are un-rotated before rendering.
+
+    Difficulty levels are based on search depth and blunder probability:
+    - EASY: depth 2, 20% chance of playing the shallower depth-1 move as a blunder
+    - MEDIUM: depth 3 with no blunders
+    - HARD: depth 8 with no blunders
     """
 
     def get_best_move(
         self,
         state: GameState,
         context: GameContext,
-        move_time_seconds: float = 1.0,
     ) -> Tuple[int, int, int, int, str]:
         """Search the current position and return the best move as board coordinates.
 
         :param state: Current board state
         :param context: Current game context (castling rights, en passant, turn)
-        :param move_time_seconds: Maximum search time in seconds
         :return: Tuple of ``(start_row, start_col, end_row, end_col, promotion)``
         """
         fen = FENConverter.to_fen(state, context)
         logger.debug("Engine FEN: %s", fen)
         pos, was_rotated = self._fen_to_position(fen)
-        move = self._search(pos, move_time_seconds)
+        move = self._search(pos)
         if move is None:
             logger.warning("Sunfish returned no move for FEN: %s", fen)
             return (0, 0, 0, 0, '')
@@ -128,25 +131,56 @@ class SunfishAdapter(EngineAdapter):
 
     # ==== Search ==== #
 
-    def _search(self, pos: sunfish.Position, time_limit: float) -> Optional[sunfish.Move]:
-        """Run time-limited iterative-deepening search.
+    def _search(self, pos: sunfish.Position) -> Optional[sunfish.Move]:
+        """Run depth-limited iterative-deepening search with optional blunder.
+
+        Collects the best move found at each search depth. For easy difficulty,
+        occasionally returns the depth-1 move instead of the deeper best move,
+        simulating a shallower (weaker) analysis.
 
         :param pos: Sunfish position to search from
-        :param time_limit: Wall-clock seconds to spend searching
-        :return: Best :class:`~pgchess.engine.sunfish.Move` found, or None
+        :return: Best :class:`~pgchess.engine.sunfish.Move` found, or occasionally
+                 a shallower-depth move (if easy mode blunder triggers)
         """
-        searcher = sunfish.Searcher()
-        best: Optional[sunfish.Move] = None
-        start = time.monotonic()
+        # Difficulty configuration: (max_depth, blunder_probability)
+        # EASY uses depth 2 so depth-1 is available as a genuine weaker alternative.
+        depth_configs = {
+            Difficulty.EASY: (2, 0.2),
+            Difficulty.MEDIUM: (3, 0.0),
+            Difficulty.HARD: (8, 0.0),
+        }
+        max_depth, blunder_prob = depth_configs[self._difficulty]
 
-        # Single-entry history — no threefold-repetition detection.
-        for _depth, _gamma, _score, move in searcher.search([pos]):
+        searcher = sunfish.Searcher()
+        best_at_depth: Dict[int, Tuple[sunfish.Move, int]] = {}
+
+        # Continue past max_depth until at least one valid move is found, ensuring
+        # the engine never returns None on a losing position where gamma=0 finds nothing.
+        for depth, _gamma, _score, move in searcher.search([pos]):
             if move is not None:
-                best = move
-            if time.monotonic() - start >= time_limit:
+                best_at_depth[depth] = (move, _score)
+            if depth >= max_depth and best_at_depth:
                 break
 
-        return best
+        if not best_at_depth:
+            return None
+
+        final_depth = max(best_at_depth.keys())
+        best_move, _best_score = best_at_depth[final_depth]
+
+        # For easy difficulty, occasionally return the shallower depth's best move
+        if blunder_prob > 0 and random.random() < blunder_prob:
+            shallow_depth = final_depth - 1
+            if shallow_depth in best_at_depth:
+                shallow_move, _shallow_score = best_at_depth[shallow_depth]
+                if shallow_move != best_move:
+                    logger.debug(
+                        "BLUNDER: Playing depth-%d move (score %s) instead of depth-%d best move (score %s)",
+                        shallow_depth, _shallow_score, final_depth, _best_score,
+                    )
+                    return shallow_move
+
+        return best_move
 
     # ==== Move rendering ==== #
 

@@ -10,3 +10,4 @@ __pycache__/
 *.env
 *.spec
 .DS_Store
+.coverage

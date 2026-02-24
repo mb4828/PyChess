@@ -6,6 +6,7 @@ import pygame
 import pygame_menu
 
 from pgchess import constants
+from pgchess.engine.engine import Difficulty
 from pgchess.gui.menus import StartMenu, PauseMenu, PromotionMenu, GameOverMenu, _draw_overlay
 from pgchess.gui.sounds import Sounds
 
@@ -37,11 +38,44 @@ class TestStartMenu:
         on_quit = MagicMock()
         menu = StartMenu(on_start, MagicMock(), on_quit, MagicMock(spec=Sounds))
 
+        # Collect titles from top-level widgets and any frame children
+        def collect_titles(widgets):
+            titles = []
+            for w in widgets:
+                if hasattr(w, 'get_title'):
+                    titles.append(w.get_title())
+                # Recurse into frames / containers
+                if hasattr(w, 'get_widgets'):
+                    titles.extend(collect_titles(w.get_widgets()))
+            return titles
+
         widgets = menu.menu.get_widgets()
-        labels = [w.get_title() for w in widgets if hasattr(w, 'get_title')]
+        labels = collect_titles(widgets)
         assert '1 Player' in labels
         assert '2 Players' in labels
         assert 'Quit' in labels
+
+    @patch('pgchess.gui.menus.get_resource_path', side_effect=lambda p: p)
+    def test_difficulty_defaults_to_easy(self, _mock_path):
+        """StartMenu should default to EASY difficulty on construction."""
+        menu = StartMenu(MagicMock(), MagicMock(), MagicMock(), MagicMock(spec=Sounds))
+        assert menu._selected_difficulty == Difficulty.EASY
+
+    @patch('pgchess.gui.menus.get_resource_path', side_effect=lambda p: p)
+    def test_on_diff_change_updates_selected_difficulty(self, _mock_path):
+        """_on_diff_change should update _selected_difficulty to the new value."""
+        menu = StartMenu(MagicMock(), MagicMock(), MagicMock(), MagicMock(spec=Sounds))
+        menu._on_diff_change(('Hard', Difficulty.HARD), 2)
+        assert menu._selected_difficulty == Difficulty.HARD
+
+    @patch('pgchess.gui.menus.get_resource_path', side_effect=lambda p: p)
+    def test_start_pvc_passes_selected_difficulty_to_callback(self, _mock_path):
+        """_start_pvc_with_diff should invoke the PvC callback with the selected difficulty."""
+        on_pvc = MagicMock()
+        menu = StartMenu(MagicMock(), on_pvc, MagicMock(), MagicMock(spec=Sounds))
+        menu._selected_difficulty = Difficulty.MEDIUM
+        menu._start_pvc_with_diff()
+        on_pvc.assert_called_once_with(Difficulty.MEDIUM)
 
     @patch('pgchess.gui.menus.get_resource_path', side_effect=lambda p: p)
     def test_draw_renders_board_overlay_and_menu(self, _mock_path):

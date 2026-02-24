@@ -1,12 +1,22 @@
 """Abstract engine adapter interface and FEN/LAN converter utilities."""
 import logging
 from abc import ABC, abstractmethod
+from enum import Enum
 from typing import Tuple
 
 from pgchess.state.game_context import GameContext
 from pgchess.state.game_state import GameState
 
 logger = logging.getLogger(__name__)
+
+
+class Difficulty(Enum):
+    """Chess engine difficulty levels."""
+
+    EASY = 'easy'
+    MEDIUM = 'medium'
+    HARD = 'hard'
+
 
 # Mapping from PGChess two-character piece codes to single FEN characters
 _PIECE_TO_FEN = {
@@ -23,18 +33,23 @@ class EngineAdapter(ABC):
     (FEN conversion, subprocess management, etc.) internally.
     """
 
+    def __init__(self, difficulty: Difficulty = Difficulty.MEDIUM) -> None:
+        """Initialize the engine adapter with a difficulty level.
+
+        :param difficulty: Engine difficulty level
+        """
+        self._difficulty = difficulty
+
     @abstractmethod
     def get_best_move(
         self,
         state: GameState,
         context: GameContext,
-        move_time_seconds: float = 1.0,
     ) -> Tuple[int, int, int, int, str]:
         """Return the best move for the current position.
 
         :param state: Current board state
         :param context: Current game context (castling rights, en passant, turn)
-        :param move_time_seconds: Maximum time (in seconds) to spend searching
         :return: Tuple of ``(start_row, start_col, end_row, end_col, promotion)``
         """
 

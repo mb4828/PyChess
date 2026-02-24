@@ -1,11 +1,13 @@
 """In-game menu screens: start, pause, promotion, and game over."""
-from typing import Callable, List
+from typing import Callable, List, Tuple
 
 import pygame
 import pygame_menu
 from pygame_menu.themes import Theme
+from pygame_menu.locals import ALIGN_CENTER
 
 from pgchess import constants
+from pgchess.engine.engine import Difficulty
 from .gui_utils import draw_board, draw_solid_rect, get_resource_path
 from .sounds import Sounds
 
@@ -91,9 +93,28 @@ class StartMenu(Menu):
         sounds: Sounds,
     ) -> None:
         super().__init__(sounds)
-        self.menu = pygame_menu.Menu('', 300, 280, theme=MENU_THEME, mouse_motion_selection=True)
+        self.on_start_pvp_press = on_start_pvp_press
+        self.on_start_pvc_press = on_start_pvc_press
+
+        self.menu = pygame_menu.Menu('', 300, 280, theme=MENU_THEME.copy(), mouse_motion_selection=True)
+        self.menu.get_theme().widget_font_size = 18
         self.menu.add.image(get_resource_path(constants.PATH_LOGO), scale=(.6, .6), scale_smooth=True)
-        self._add_button('1 Player', on_start_pvc_press)
+        self._selected_difficulty = Difficulty.EASY
+
+        # Group the 1-player controls in a horizontal frame (button + selector)
+        frame = self.menu.add.frame_h(188, 40, align=ALIGN_CENTER)
+
+        btn = self.menu.add.button('1 Player', _on_confirm(
+            self._sounds, self._start_pvc_with_diff), onselect=_on_select(self._sounds))
+        sel = self.menu.add.selector(
+            '',
+            [('Easy', Difficulty.EASY), ('Med', Difficulty.MEDIUM), ('Hard', Difficulty.HARD)],
+            onchange=self._on_diff_change,
+        )
+        frame.pack(btn)
+        frame.pack(sel)
+
+        # 2 Players and Quit buttons
         self._add_button('2 Players', on_start_pvp_press)
         self._add_button('Quit', on_quit_press, True)
         self.menu.add.vertical_margin(10)
@@ -109,6 +130,18 @@ class StartMenu(Menu):
         _draw_overlay(window)
         self.menu.update(events)
         self.menu.draw(window)
+
+    def _on_diff_change(self, value: Tuple[str, Difficulty], selected: int) -> None:
+        """Update the selected difficulty when the selector changes.
+
+        :param value: Tuple of ``(label, Difficulty)`` for the newly selected item
+        :param selected: Index of the newly selected item
+        """
+        self._selected_difficulty = value[1]
+
+    def _start_pvc_with_diff(self) -> None:
+        """Start a PvC game using the currently selected difficulty."""
+        self.on_start_pvc_press(self._selected_difficulty)
 
 
 class PauseMenu(Menu):

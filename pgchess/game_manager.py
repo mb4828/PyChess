@@ -6,6 +6,7 @@ from typing import Optional
 import pygame
 
 from pgchess import constants
+from pgchess.engine.engine import Difficulty
 from pgchess.game.game import Game
 from pgchess.game.pvc_game import PVCGame
 from pgchess.game.pvp_game import PVPGame
@@ -85,9 +86,12 @@ class GameManager:
         self._game = PVPGame(self._window, self._sounds)
         self._app_state = AppState.PLAYER_MOVE
 
-    def _start_pvc_game(self) -> None:
-        """Initialise and start a new player-vs-computer game."""
-        self._game = PVCGame(self._window, self._sounds)
+    def _start_pvc_game(self, difficulty: Difficulty = Difficulty.EASY) -> None:
+        """Initialise and start a new player-vs-computer game.
+
+        :param difficulty: Engine difficulty level
+        """
+        self._game = PVCGame(self._window, self._sounds, difficulty)
         self._app_state = AppState.PLAYER_MOVE
 
     def _resume_game(self) -> None:

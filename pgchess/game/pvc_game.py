@@ -1,5 +1,6 @@
 """Player-vs-Computer game mode. Human plays white; computer plays black."""
 import logging
+import time
 from threading import Thread
 from typing import Optional, Tuple
 
@@ -7,6 +8,7 @@ import pygame
 from pygame.event import Event
 
 from pgchess import constants
+from pgchess.engine.engine import Difficulty
 from pgchess.engine.sunfish_adapter import SunfishAdapter
 from pgchess.game.game import Game
 from pgchess.gui.sounds import Sounds
@@ -29,9 +31,14 @@ class PVCGame(Game):
     prevent out-of-turn moves.
     """
 
-    def __init__(self, window: pygame.Surface, sounds: Sounds) -> None:
+    def __init__(
+        self,
+        window: pygame.Surface,
+        sounds: Sounds,
+        difficulty: Difficulty = Difficulty.EASY,
+    ) -> None:
         super().__init__(window, sounds)
-        self._engine: SunfishAdapter = SunfishAdapter()
+        self._engine: SunfishAdapter = SunfishAdapter(difficulty)
         self._computing: bool = False
         self._last_computer_move: Optional[Tuple[Tuple[int, int], Tuple[int, int]]] = None
 
@@ -77,9 +84,14 @@ class PVCGame(Game):
         event queue to remain thread-safe.
         """
         try:
+            start = time.monotonic()
             move_data = self._engine.get_best_move(
                 self.state.get_state(), self.state.get_context()
             )
+            # Ensure the 'Thinking...' indicator is visible for at least 1 second
+            elapsed = time.monotonic() - start
+            if elapsed < 1.0:
+                time.sleep(1.0 - elapsed)
             pygame.event.post(Event(constants.EVENT_COMPUTER_MOVE, {'move_data': move_data}))
         except Exception:  # pylint: disable=broad-except
             logger.exception("Engine worker raised an unexpected exception")
