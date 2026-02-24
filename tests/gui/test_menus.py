@@ -65,7 +65,7 @@ class TestStartMenu:
     def test_on_diff_change_updates_selected_difficulty(self, _mock_path):
         """_on_diff_change should update _selected_difficulty to the new value."""
         menu = StartMenu(MagicMock(), MagicMock(), MagicMock(), MagicMock(spec=Sounds))
-        menu._on_diff_change(('Hard', Difficulty.HARD), 2)
+        menu._on_diff_change((('Hard', Difficulty.HARD), 2), Difficulty.HARD)
         assert menu._selected_difficulty == Difficulty.HARD
 
     @patch('pgchess.gui.menus.get_resource_path', side_effect=lambda p: p)
