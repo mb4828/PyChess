@@ -24,9 +24,9 @@ jobs:
         run: |
           $fonts = python -c "import pygame_menu, os; print(os.path.join(os.path.dirname(pygame_menu.__file__), 'resources', 'fonts'))"
           pyinstaller --onefile main.py `
-            --add-data "assets/images/*;assets/images" `
-            --add-data "assets/sounds/*;assets/sounds" `
-            --add-data "${fonts}/*;pygame_menu/resources/fonts" `
+            --add-data "assets/images:assets/images" `
+            --add-data "assets/sounds:assets/sounds" `
+            --add-data "${fonts}:pygame_menu/resources/fonts" `
             --name PGChess `
             --icon assets/images/pgchess.ico `
             --noconsole
@@ -52,9 +52,9 @@ jobs:
         run: |
           FONTS=$(python -c "import pygame_menu, os; print(os.path.join(os.path.dirname(pygame_menu.__file__), 'resources', 'fonts'))")
           pyinstaller --windowed main.py \
-            --add-data "assets/images/*:assets/images" \
-            --add-data "assets/sounds/*:assets/sounds" \
-            --add-data "${FONTS}/*:pygame_menu/resources/fonts" \
+            --add-data "assets/images:assets/images" \
+            --add-data "assets/sounds:assets/sounds" \
+            --add-data "${FONTS}:pygame_menu/resources/fonts" \
             --name PGChess \
             --icon assets/images/pgchess.png
           rm -rf dist/PGChess
