@@ -50,7 +50,8 @@ jobs:
             git checkout badges
           else
             git checkout --orphan badges
-            git rm -rf . --quiet
+            git rm -rf . --quiet --ignore-unmatch
+            git clean -fd --quiet
           fi
           cp /tmp/coverage-badge.json coverage-badge.json
           git add coverage-badge.json
