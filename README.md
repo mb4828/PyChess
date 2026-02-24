@@ -2,7 +2,6 @@
 
 [![Build](https://github.com/mb4828/PGChess/actions/workflows/build.yml/badge.svg)](https://github.com/mb4828/PGChess/actions/workflows/build.yml)
 [![Tests](https://github.com/mb4828/PGChess/actions/workflows/test.yml/badge.svg)](https://github.com/mb4828/PGChess/actions/workflows/test.yml)
-[![Coverage](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/mb4828/PGChess/badges/coverage-badge.json)](https://github.com/mb4828/PGChess/actions/workflows/test.yml)
 [![Version](https://img.shields.io/github/v/release/mb4828/PGChess)](https://github.com/mb4828/PGChess/releases)
 
 Python chess GUI using PyGame and Sunfish
