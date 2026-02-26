@@ -123,7 +123,7 @@ class TestDrawSolidCircle:
         with patch('pgchess.gui.gui_utils.pygame.Surface', return_value=mock_surface):
             with patch('pgchess.gui.gui_utils.pygame.draw.circle') as mock_circle:
                 draw_solid_circle(window, 80, 80, 10.0, 30, 40, (0, 255, 0), 200)
-                mock_circle.assert_called_once_with(mock_surface, (0, 255, 0), (40.0, 40.0), 10.0)
+                mock_circle.assert_called_once_with(mock_surface, (0, 255, 0, 200), (40.0, 40.0), 10.0)
 
     def test_circle_centered_in_surface(self):
         """The circle center should be at (width/2, height/2)."""

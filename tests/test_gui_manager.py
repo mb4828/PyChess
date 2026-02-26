@@ -16,10 +16,11 @@ def _make_gui():
 
     with patch('pgchess.gui.sprites.pygame.image.load', return_value=mock_surface):
         with patch('pgchess.gui.sprites.get_resource_path', side_effect=lambda p: p):
-            from pgchess.gui_manager import GUIManager
-            window = MagicMock(spec=pygame.Surface)
-            gui = GUIManager(window, MagicMock(spec=Sounds))
-            return gui, window
+            with patch('pgchess.gui.sprites.pygame.transform.smoothscale', return_value=MagicMock()):
+                from pgchess.gui_manager import GUIManager
+                window = MagicMock(spec=pygame.Surface)
+                gui = GUIManager(window, MagicMock(spec=Sounds))
+                return gui, window
 
 
 class TestDrawPiece:

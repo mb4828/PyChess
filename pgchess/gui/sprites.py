@@ -25,22 +25,26 @@ class Sprites:
         self.game_window: pygame.Surface = game_window
         sq = constants.SQ_HEIGHT
 
+        _pairs = [
+            (Piece.KL, constants.PATH_KL),
+            (Piece.KD, constants.PATH_KD),
+            (Piece.QL, constants.PATH_QL),
+            (Piece.QD, constants.PATH_QD),
+            (Piece.BL, constants.PATH_BL),
+            (Piece.BD, constants.PATH_BD),
+            (Piece.NL, constants.PATH_NL),
+            (Piece.ND, constants.PATH_ND),
+            (Piece.RL, constants.PATH_RL),
+            (Piece.RD, constants.PATH_RD),
+            (Piece.PL, constants.PATH_PL),
+            (Piece.PD, constants.PATH_PD),
+        ]
+        self._raw_sprites: Dict[str, pygame.Surface] = {
+            code: _load_sprite(path) for code, path in _pairs
+        }
         self._sprites: Dict[str, pygame.Surface] = {
-            code: pygame.transform.smoothscale(_load_sprite(path), (sq, sq))
-            for code, path in [
-                (Piece.KL, constants.PATH_KL),
-                (Piece.KD, constants.PATH_KD),
-                (Piece.QL, constants.PATH_QL),
-                (Piece.QD, constants.PATH_QD),
-                (Piece.BL, constants.PATH_BL),
-                (Piece.BD, constants.PATH_BD),
-                (Piece.NL, constants.PATH_NL),
-                (Piece.ND, constants.PATH_ND),
-                (Piece.RL, constants.PATH_RL),
-                (Piece.RD, constants.PATH_RD),
-                (Piece.PL, constants.PATH_PL),
-                (Piece.PD, constants.PATH_PD),
-            ]
+            code: pygame.transform.smoothscale(raw, (sq, sq))
+            for code, raw in self._raw_sprites.items()
         }
 
     def scale_sprite(self, sprite: pygame.Surface, width: float, height: float) -> pygame.Surface:
@@ -70,5 +74,6 @@ class Sprites:
         if sprite and width and height:
             if (floor(width), floor(height)) == sprite.get_size():
                 return sprite
-            return self.scale_sprite(sprite, width, height)
+            raw = self._raw_sprites.get(piece_code)
+            return self.scale_sprite(raw, width, height)
         return sprite

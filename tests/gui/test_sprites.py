@@ -29,15 +29,17 @@ class TestSpritesInit:
         """Constructor should load sprites for all 12 piece codes."""
         mock_surface = MagicMock()
         mock_surface.convert_alpha.return_value = mock_surface
+        mock_scaled = MagicMock()
 
         with patch('pgchess.gui.sprites.pygame.image.load', return_value=mock_surface):
             with patch('pgchess.gui.sprites.get_resource_path', side_effect=lambda p: p):
-                window = MagicMock(spec=pygame.Surface)
-                sprites = Sprites(window)
+                with patch('pgchess.gui.sprites.pygame.transform.smoothscale', return_value=mock_scaled):
+                    window = MagicMock(spec=pygame.Surface)
+                    sprites = Sprites(window)
 
-                expected_codes = {'kl', 'kd', 'ql', 'qd', 'bl',
-                                  'bd', 'nl', 'nd', 'rl', 'rd', 'pl', 'pd'}
-                assert set(sprites._sprites.keys()) == expected_codes
+                    expected_codes = {'kl', 'kd', 'ql', 'qd', 'bl',
+                                      'bd', 'nl', 'nd', 'rl', 'rd', 'pl', 'pd'}
+                    assert set(sprites._sprites.keys()) == expected_codes
 
 
 class TestScaleSprite:
@@ -51,8 +53,9 @@ class TestScaleSprite:
 
         with patch('pgchess.gui.sprites.pygame.image.load', return_value=mock_surface):
             with patch('pgchess.gui.sprites.get_resource_path', side_effect=lambda p: p):
-                window = MagicMock(spec=pygame.Surface)
-                sprites = Sprites(window)
+                with patch('pgchess.gui.sprites.pygame.transform.smoothscale'):
+                    window = MagicMock(spec=pygame.Surface)
+                    sprites = Sprites(window)
 
         with patch('pgchess.gui.sprites.pygame.transform.smoothscale', return_value=mock_scaled) as mock_scale:
             result = sprites.scale_sprite(mock_surface, 82.5, 82.5)
@@ -66,8 +69,9 @@ class TestScaleSprite:
 
         with patch('pgchess.gui.sprites.pygame.image.load', return_value=mock_surface):
             with patch('pgchess.gui.sprites.get_resource_path', side_effect=lambda p: p):
-                window = MagicMock(spec=pygame.Surface)
-                sprites = Sprites(window)
+                with patch('pgchess.gui.sprites.pygame.transform.smoothscale'):
+                    window = MagicMock(spec=pygame.Surface)
+                    sprites = Sprites(window)
 
         with patch('pgchess.gui.sprites.pygame.transform.smoothscale') as mock_scale:
             sprites.scale_sprite(mock_surface, 75, 75)
@@ -84,8 +88,9 @@ class TestGetSpriteFromCode:
 
         with patch('pgchess.gui.sprites.pygame.image.load', return_value=mock_surface):
             with patch('pgchess.gui.sprites.get_resource_path', side_effect=lambda p: p):
-                window = MagicMock(spec=pygame.Surface)
-                return Sprites(window)
+                with patch('pgchess.gui.sprites.pygame.transform.smoothscale', return_value=MagicMock()):
+                    window = MagicMock(spec=pygame.Surface)
+                    return Sprites(window)
 
     def test_returns_sprite_for_valid_code(self):
         """A known piece code should return a surface."""
