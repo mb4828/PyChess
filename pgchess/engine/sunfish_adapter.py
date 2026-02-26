@@ -145,9 +145,9 @@ class SunfishAdapter(EngineAdapter):
         # Difficulty configuration: (max_depth, blunder_probability)
         # EASY uses depth 2 so depth-1 is available as a genuine weaker alternative.
         depth_configs = {
-            Difficulty.EASY: (2, 0.2),
+            Difficulty.EASY: (1, 0.2),
             Difficulty.MEDIUM: (3, 0.0),
-            Difficulty.HARD: (8, 0.0),
+            Difficulty.HARD: (7, 0.0),
         }
         max_depth, blunder_prob = depth_configs[self._difficulty]
 

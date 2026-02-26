@@ -81,8 +81,7 @@ def draw_solid_circle(
     :param color: RGB fill color
     :param alpha: Transparency (0 = fully transparent, 255 = opaque)
     """
-    surface = pygame.Surface((width, height))
-    surface.set_alpha(alpha)
+    surface = pygame.Surface((width, height), pygame.SRCALPHA)
     center = (width / 2, height / 2)
-    pygame.draw.circle(surface, color, center, radius)
+    pygame.draw.circle(surface, (*color, alpha), center, radius)
     window.blit(surface, (y_position, x_position))

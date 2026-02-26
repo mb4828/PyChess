@@ -23,20 +23,24 @@ class Sprites:
 
     def __init__(self, game_window: pygame.Surface) -> None:
         self.game_window: pygame.Surface = game_window
+        sq = constants.SQ_HEIGHT
 
         self._sprites: Dict[str, pygame.Surface] = {
-            Piece.KL: _load_sprite(constants.PATH_KL),
-            Piece.KD: _load_sprite(constants.PATH_KD),
-            Piece.QL: _load_sprite(constants.PATH_QL),
-            Piece.QD: _load_sprite(constants.PATH_QD),
-            Piece.BL: _load_sprite(constants.PATH_BL),
-            Piece.BD: _load_sprite(constants.PATH_BD),
-            Piece.NL: _load_sprite(constants.PATH_NL),
-            Piece.ND: _load_sprite(constants.PATH_ND),
-            Piece.RL: _load_sprite(constants.PATH_RL),
-            Piece.RD: _load_sprite(constants.PATH_RD),
-            Piece.PL: _load_sprite(constants.PATH_PL),
-            Piece.PD: _load_sprite(constants.PATH_PD),
+            code: pygame.transform.smoothscale(_load_sprite(path), (sq, sq))
+            for code, path in [
+                (Piece.KL, constants.PATH_KL),
+                (Piece.KD, constants.PATH_KD),
+                (Piece.QL, constants.PATH_QL),
+                (Piece.QD, constants.PATH_QD),
+                (Piece.BL, constants.PATH_BL),
+                (Piece.BD, constants.PATH_BD),
+                (Piece.NL, constants.PATH_NL),
+                (Piece.ND, constants.PATH_ND),
+                (Piece.RL, constants.PATH_RL),
+                (Piece.RD, constants.PATH_RD),
+                (Piece.PL, constants.PATH_PL),
+                (Piece.PD, constants.PATH_PD),
+            ]
         }
 
     def scale_sprite(self, sprite: pygame.Surface, width: float, height: float) -> pygame.Surface:
@@ -64,5 +68,7 @@ class Sprites:
         sprite = self._sprites.get(piece_code)
 
         if sprite and width and height:
+            if (floor(width), floor(height)) == sprite.get_size():
+                return sprite
             return self.scale_sprite(sprite, width, height)
         return sprite

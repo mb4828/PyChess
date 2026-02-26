@@ -66,7 +66,8 @@ class GameManager:
 
         Called once from ``__init__`` before the main loop starts.
         """
-        self._window = pygame.display.set_mode((constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT), pygame.SCALED)
+        self._window = pygame.display.set_mode(
+            (constants.WINDOW_WIDTH, constants.WINDOW_HEIGHT), pygame.SCALED, vsync=1)
         pygame.display.set_caption('PGChess')
         pygame.display.set_icon(
             pygame.image.load(get_resource_path(constants.PATH_ICON)))

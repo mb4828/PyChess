@@ -4,7 +4,7 @@
 [![Tests](https://github.com/mb4828/PGChess/actions/workflows/test.yml/badge.svg)](https://github.com/mb4828/PGChess/actions/workflows/test.yml)
 [![Version](https://img.shields.io/github/v/release/mb4828/PGChess)](https://github.com/mb4828/PGChess/releases)
 
-Python chess GUI using PyGame and Sunfish
+Python chess GUI using [PyGame](https://www.pygame.org) and [Sunfish](https://github.com/thomasahle/sunfish)
 
 ![Screenshot](assets/images/screenshot1.png)
 
